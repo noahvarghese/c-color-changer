@@ -69,7 +69,15 @@ int parse_args(int argc, char *argv[])
 
         if (strcmp(arg, "-i") == 0 || strcmp(arg, "--ignore") == 0)
         {
-            IGNORED_COLOR = argv[++i];
+            if (check_color_format(argv[++i]) == 0)
+            {
+                IGNORED_COLOR = argv[i];
+            }
+            else
+            {
+                printf("Ignored color not in correct format\n");
+                return 1;
+            };
         }
         else if (strcmp(arg, "-c") == 0 || strcmp(arg, "--color") == 0)
         {
@@ -79,7 +87,7 @@ int parse_args(int argc, char *argv[])
             }
             else
             {
-                printf("Color not in correct format\n");
+                printf("Desired color not in correct format\n");
                 return 1;
             }
         }
