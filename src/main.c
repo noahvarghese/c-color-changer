@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <sys/stat.h>
+#include <sys/types.h>
+
 // Parse cli args
 // -i/--ignore ignored color
 // -c/--color desired color
@@ -30,6 +33,7 @@
 char *IGNORED_COLOR;
 char *DESIRED_COLOR;
 char *PATH;
+bool IS_DIR;
 
 bool check_file_exists(const char *filename)
 {
@@ -40,6 +44,29 @@ bool check_file_exists(const char *filename)
         return true;
     }
     return false;
+}
+
+bool check_is_file(const char *filename)
+{
+    struct stat statbuf;
+
+    stat(filename, &statbuf);
+
+    if (S_ISREG(statbuf.st_mode) != 0)
+        return true;
+    else
+        return false;
+}
+
+bool check_is_dir(const char *filename)
+{
+    struct stat statbuf;
+
+    stat(filename, &statbuf);
+    if (S_ISDIR(statbuf.st_mode) != 0)
+        return true;
+    else
+        return false;
 }
 
 int check_color_format(char color[])
@@ -106,12 +133,37 @@ bool parse_args(int argc, char *argv[])
         }
         else if (strcmp(arg, "-p") == 0 || strcmp(arg, "--path") == 0)
         {
-            PATH = argv[++i];
+            if (check_file_exists(argv[++i]) == true)
+            {
+                if (check_is_file(argv[i]) == true)
+                {
+                    IS_DIR = false;
+                }
+                else
+                {
+                    if (check_is_dir(argv[i]) == true)
+                    {
+                        IS_DIR = true;
+                    }
+                    else
+                    {
+                        printf("File is not regular file or directory.\n");
+                        return false;
+                    }
+                }
+                PATH = argv[i];
+            }
+            else
+            {
+                printf("File path does not exist\n");
+                return false;
+            }
         }
     }
     printf("IGNORED_COLOR: %s\n", IGNORED_COLOR);
     printf("DESIRED_COLOR: %s\n", DESIRED_COLOR);
     printf("PATH: %s\n", PATH);
+    printf("IS_DIR: %d\n", IS_DIR);
 
     return true;
 }
