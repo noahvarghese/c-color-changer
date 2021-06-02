@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
+
 // Parse cli args
 // -i/--ignore ignored color
 // -c/--color desired color
@@ -29,6 +31,17 @@ char *IGNORED_COLOR;
 char *DESIRED_COLOR;
 char *PATH;
 
+bool check_file_exists(const char *filename)
+{
+    FILE *file;
+    if (file = fopen(filename, "r"))
+    {
+        fclose(file);
+        return true;
+    }
+    return false;
+}
+
 int check_color_format(char color[])
 {
     int length = strlen(color);
@@ -44,14 +57,14 @@ int check_color_format(char color[])
 
         if ((color[i] < '0' || color[i] > '9') && (color[i] < 'A' || color[i] > 'F'))
         {
-            return 1;
+            return false;
         }
     }
 
-    return 0;
+    return true;
 }
 
-int parse_args(int argc, char *argv[])
+bool parse_args(int argc, char *argv[])
 {
     // Start at  becuase 0 is the file name
     for (int i = 1; i < argc; i++)
@@ -69,26 +82,26 @@ int parse_args(int argc, char *argv[])
 
         if (strcmp(arg, "-i") == 0 || strcmp(arg, "--ignore") == 0)
         {
-            if (check_color_format(argv[++i]) == 0)
+            if (check_color_format(argv[++i]) == true)
             {
                 IGNORED_COLOR = argv[i];
             }
             else
             {
                 printf("Ignored color not in correct format\n");
-                return 1;
+                return false;
             };
         }
         else if (strcmp(arg, "-c") == 0 || strcmp(arg, "--color") == 0)
         {
-            if (check_color_format(argv[++i]) == 0)
+            if (check_color_format(argv[++i]) == true)
             {
                 DESIRED_COLOR = argv[i];
             }
             else
             {
                 printf("Desired color not in correct format\n");
-                return 1;
+                return false;
             }
         }
         else if (strcmp(arg, "-p") == 0 || strcmp(arg, "--path") == 0)
@@ -99,15 +112,16 @@ int parse_args(int argc, char *argv[])
     printf("IGNORED_COLOR: %s\n", IGNORED_COLOR);
     printf("DESIRED_COLOR: %s\n", DESIRED_COLOR);
     printf("PATH: %s\n", PATH);
-    return 0;
+
+    return true;
 }
 
 int main(int argc, char *argv[])
 {
-    if (parse_args(argc, argv) == 0)
+    if (parse_args(argc, argv) == true)
     {
-        return 0;
+        return true;
     }
 
-    return 1;
+    return false;
 }
