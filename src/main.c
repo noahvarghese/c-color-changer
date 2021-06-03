@@ -6,34 +6,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-// Parse cli args
-// -i/--ignore ignored color
-// -c/--color desired color
-// -p/--path image path (directory or file)
-
-// Calculate 3 colors (decrease the 'hue'?) by a set amount from the desired color
-
-// For each file
-
-// Loop through pixels
-// if pixel != transparent AND pixel != ignored color
-// Get 'largest' and 'smallest' color value
-// (largest = white)
-// (smallest = black)
-// Calculate 4 ranges starting at 'largest'
-
-// Create new file
-// Loop through pixels again
-// if pixel == transparent AND pixel == ignored color
-// Save pixel to new file
-// else
-// check which of the 4 ranges the pixel falls in
-// save calculated color pixel to file
-
 char *IGNORED_COLOR;
 char *DESIRED_COLOR;
 char *PATH;
 bool IS_DIR;
+
+void parse_files(char *file_list[], char prev_path[])
+{
+}
 
 bool check_file_exists(const char *filename)
 {
@@ -93,7 +73,6 @@ int check_color_format(char color[])
 
 bool parse_args(int argc, char *argv[])
 {
-    // Start at  becuase 0 is the file name
     for (int i = 1; i < argc; i++)
     {
         size_t length = strlen(argv[i]);
@@ -170,10 +149,33 @@ bool parse_args(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    // Parse cli args
+    // -i/--ignore ignored color
+    // -c/--color desired color
+    // -p/--path image path (directory or file)
+
     if (parse_args(argc, argv) == true)
     {
+        // Calculate 3 colors (decrease the 'hue'?) by a set amount from the desired color
         return true;
     }
+
+    // For each file
+
+    // Loop through pixels
+    // if pixel != transparent AND pixel != ignored color
+    // Get 'largest' and 'smallest' color value
+    // (largest = white)
+    // (smallest = black)
+    // Calculate 4 ranges starting at 'largest'
+
+    // Create new file
+    // Loop through pixels again
+    // if pixel == transparent AND pixel == ignored color
+    // Save pixel to new file
+    // else
+    // check which of the 4 ranges the pixel falls in
+    // save calculated color pixel to file
 
     return false;
 }
