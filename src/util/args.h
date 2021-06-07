@@ -1,3 +1,11 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+#include "checks.h"
+#include "../main.h"
+
 #ifndef HELP_MESSAGE
 #define HELP_MESSAGE "-i/--ignore\tis the color to be ignored in hex notation\n-c/--color\tthe color to replace with\n-p/--path\tthe path to the file(s) to be changed\n" 
 #endif

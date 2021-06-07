@@ -40,7 +40,7 @@ bool check_file_exists(const char *filename)
     return false;
 }
 
-bool check_color_format(char color[])
+bool check_color_format(char *color)
 {
     int length = strlen(color);
     int start = ((int)color[0]) == '#' ? 1 : 0;

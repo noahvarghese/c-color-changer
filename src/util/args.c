@@ -1,11 +1,4 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-
 #include "args.h"
-#include "checks.h"
-#include "vars.h"
 
 bool parse_args(int argc, char *argv[])
 {
@@ -16,7 +9,7 @@ bool parse_args(int argc, char *argv[])
         char arg[length];
         strcpy(arg, argv[i]);
 
-        if (i == argc - 1)
+        if (i == argc)
         {
             printf("Missing an argument\n");
             return 1;
@@ -26,7 +19,7 @@ bool parse_args(int argc, char *argv[])
         {
             if (check_color_format(argv[++i]) == true)
             {
-                IGNORED_COLOR = argv[i];
+                vars->ignored_color = argv[i];
             }
             else
             {
@@ -38,7 +31,7 @@ bool parse_args(int argc, char *argv[])
         {
             if (check_color_format(argv[++i]) == true)
             {
-                DESIRED_COLOR = argv[i];
+                vars->desired_color = argv[i];
             }
             else
             {
@@ -52,13 +45,13 @@ bool parse_args(int argc, char *argv[])
             {
                 if (check_is_file(argv[i]) == true)
                 {
-                    IS_DIR = false;
+                    vars->is_dir = false;
                 }
                 else
                 {
                     if (check_is_dir(argv[i]) == true)
                     {
-                        IS_DIR = true;
+                        vars->is_dir = true;
                     }
                     else
                     {
@@ -66,7 +59,7 @@ bool parse_args(int argc, char *argv[])
                         return false;
                     }
                 }
-                PATH = argv[i];
+                vars->path = argv[i];
             }
             else
             {
@@ -75,19 +68,14 @@ bool parse_args(int argc, char *argv[])
             }
         }
     }
-        
-    printf("IGNORED_COLOR: %s\n", IGNORED_COLOR);
-    printf("DESIRED_COLOR: %s\n", DESIRED_COLOR);
-    printf("PATH: %s\n", PATH);
-    printf("IS_DIR: %d\n", IS_DIR);
 
-    if ( IGNORED_COLOR == NULL )
+    if ( vars->ignored_color == NULL )
         return false;
     
-    if (DESIRED_COLOR == NULL )
+    if (vars->desired_color == NULL )
         return false;
 
-    if (PATH == NULL)
+    if (vars->path == NULL)
         return false;
 
     return true;
