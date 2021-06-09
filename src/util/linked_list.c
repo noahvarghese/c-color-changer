@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include "str.h"
 #include "node.h"
 #include "linked_list.h"
 #include "../main.h"
 
 sll* init_sll() {
-    sll *list;
+    sll *list = (sll*)malloc(sizeof(sll));
 
     list->head = NULL;
     list->tail = NULL;
@@ -76,7 +77,13 @@ sll* sll_from_string(char files[], const char _delim)
     paths->head = init_node();
     struct node *current = paths->head;
 
+    if (contains(files, _delim) == false) {
+        paths->head->value = strdup(files);
+        return paths;
+    }
+
     while ( token = strtok_r(files, delim, &rest) )  {
+        printf("Current file: %s\n", token);
         current->value = token;
         current->next = init_node();
 

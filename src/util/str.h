@@ -1,0 +1,1 @@
+bool contains(char string[], const char delim);
