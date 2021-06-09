@@ -11,109 +11,31 @@
 #include "./util/args.h"
 #include "./util/checks.h"
 #include "./util/color_changer.h"
+#include "./util/node.h"
+#include "./util/linked_list.h"
 #include "main.h"
-
-struct split_path {
-    char **files;
-    int files_count;
-};
 
 program_vars *vars;
 
-struct split_path get_files_from_string(char files_string[], const char files_delim)
-{
-    struct split_path paths;
-    paths.files_count = 0;
-    paths.files = 0;
-
-    char delim[] = {files_delim, 0};
-    char *tmp = files_string;
-    char *last_comma = 0;
-
-    while (*tmp) {
-        if ( files_delim == *tmp) {
-            paths.files_count++;
-            last_comma = tmp;
-        }
-
-        tmp++;
-    }
-
-    /* Add space for trailing token. */
-    paths.files_count += last_comma < (files_string + strlen(files_string) - 1);
-
-    paths.files = malloc(sizeof(char *) * paths.files_count);
-
-    if ( paths.files ) {
-        char* rest = files_string;
-
-        for ( int i = 0; i <= paths.files_count; i++ ) {
-            char *token = strtok_r(files_string, delim, &rest);
-
-            if (token) {
-                assert(i <= paths.files_count);
-                *(paths.files + i) = strdup(token);
-                token = strtok_r(files_string, delim, &rest);
-            }
-
-            if (i == paths.files_count) {
-                *(paths.files + i) = 0;
-            }
-        }
-    }
-
-    return paths;
-}
-
-char** append_to_array(char **dest, int count, char* string) {
-    printf("Count: %d\n", count);
-    printf("New: %s\n", string);
-
-    char **tmp_array;
-    size_t size = sizeof(dest) + sizeof(string);
-
-    printf("Size: %d\n", size);
-    tmp_array = malloc(size);
-
-    for ( int i = 0; i < count - 1; i++) {
-        printf("%s\n", *(dest + i));
-        *(tmp_array + i) = *(dest + i);
-        printf("Current: %s\n", *(dest + i));
-    } 
-
-    tmp_array[count - 1] = string;
-    // memcpy(dest, tmp_array, count * sizeof(char));
-    // dest = tmp_array;
-
-    // printf("Dest 0 %s\n", dest[0]);
-    // printf("tmp 0 %s\n", tmp_array[0]);
-    return tmp_array;
-}
-
-struct split_path read_dir(char* dirname) {
+sll* read_dir(char* dirname) {
     struct dirent *dp;
     DIR *dfd;
-    struct split_path files;
 
+    sll *files = init_sll();
+
+    // Check if we can open directory
     if ((dfd = opendir(dirname)) == NULL) {
         printf("Can't open %s\n", dirname);
         return files;
     }
 
-    files.files = 0;
-    files.files_count = 0;
-
     while((dp = readdir(dfd)) != NULL) {
-        printf("DP NAME: %s\n", dp->d_name);
+        // If not a hidden file or the current directory
         if ( dp->d_name[0] != '.' ) {
-            char *file = malloc(strlen(dp->d_name) + sizeof(char));
-            memcpy(file, dp->d_name, strlen(dp->d_name) + sizeof(char));
 
-            if (strcmp(file, ".") != 0 && strcmp(file, "..") != 0) {
-                printf("File: %s\n", file);
-                files.files_count++;
-                files.files = append_to_array(files.files, files.files_count, file);
-                // printf("New File: %s\n", files.files[0]);
+            // if not the previous directory
+            if (strcmp(dp->d_name, "..") != 0) {
+                append_data_to_list(files, dp->d_name);
             }
         }
     }
@@ -121,71 +43,63 @@ struct split_path read_dir(char* dirname) {
     return files;
 }
 
-void perform_on_files(struct split_path files_struct, char prev_path[], void (*func)(char[]))
+void perform_on_files(sll *files, char prev_path[], void (*func)(char[]))
 {
-    // Loop over files
-    for (int i = 0; i < files_struct.files_count; i++)
-    {
-        printf("Files: %s\n", files_struct.files[i]);
-        // char *file = strdup(files_struct.files[i]);
+    node *file_node = files->head;
 
-        char *file = malloc(strlen(files_struct.files[i]) * sizeof(char));
-        memcpy(file, *(files_struct.files+ i), strlen(*(files_struct.files + i)) * sizeof(char));
+    // Iterate over files in the directory/list
+    // if it is a regular file (will have to check if it is an image type as well [png,jpg,etc])
+    // If it is a directory create a new linked list and recursively call this method
+    // This needs the previous path to be kept track of
+    while ( file_node != NULL ) {
+        printf("File: %s\n", file_node->value);
 
-        if ( check_is_dir(file) == false ) {
-            printf("This is not a directory %s\n", file);
-            if ( check_is_file(file) == true ) {
-                printf("This is not a file %s\n", file);
-                func(file);
-            }
+        if ( check_is_dir(file_node->value) == false ) {
+            if ( check_is_file(file_node->value) == true ) 
+                func(file_node->value);
+
             return;
         }
 
-        if ( strlen(file) == 1 && file[0] == '.' )
+        if ( strlen(file_node->value) == 1 && file_node->value[0] == '.' )
             return;
 
-
-        if (prev_path == "")
-        {
-            const char first_el = file[0];
-            const char second_el = file[1];
-
-            // create relative path if not already there
-            if ( first_el != '.' && second_el != '/' ) {
-                prev_path = strdup("./");
-                strcat(prev_path, file);
-                // strcpy(prev_path, "./");
-            } 
-            else {
-                prev_path = strdup(file);
-            }
-            // strcpy(prev_path, file);
-        }
-        else
-        {
-            // check if there is a trailing backslash
-            // and adds the file path
-            if (prev_path[(int)strlen(prev_path) - 1] == '/')
-            {
-                strcat(prev_path, file);
-                // strcpy(prev_path, file);
-            }
-            else
-            {
+        if (prev_path != "") {
+            if (prev_path[(int)strlen(prev_path) - 1] != '/') {
                 strcat(prev_path, "/");
-                strcat(prev_path, file);
-                // strcpy(prev_path, "/");
-                // strcpy(prev_path, file);
             }
+            strcat(prev_path, file_node->value);
         }
+        else {
+            bool concatenated = false;
 
+            if (file_node->value[0] != '.' && file_node->value[1] != '/') {
+                if (file_node->value[0] != '/') {
+                    prev_path = "./";
+                    strcat(prev_path, file_node->value);
+                    concatenated = true;
+                }
+            }
+            else {
+                if (concatenated == false) {
+                    prev_path = strdup(file_node->value);
+                }
+            }
+        } 
+        
         printf("prev_path: %s\n", prev_path);
 
         // get struct of files
         // pass to perform on files
-        struct split_path tmp_file_struct = read_dir(file);
-        printf("File count: %d\n", tmp_file_struct.files_count);
-        perform_on_files(tmp_file_struct, prev_path, func);
+        char *full_file_path = malloc((strlen(prev_path) + strlen(file_node->value)) * sizeof(char) + 1);
+        sprintf(full_file_path, "%s%s", prev_path, file_node->value);
+        printf("File path: %s\n", full_file_path);
+
+        sll *ll = read_dir(file_node->value);
+        printf("File count: %d\n", ll->length);
+        perform_on_files(ll, prev_path, func);
+
+        file_node = file_node->next;
     }
 }
 
@@ -214,9 +128,9 @@ int main(int argc, char *argv[])
     }
 
     const char delim = ',';
-    struct split_path files_struct = get_files_from_string(vars->path, delim);
+    sll *files = sll_from_string(vars->path, delim);
 
-    perform_on_files(files_struct, "", tmp_func);
+    perform_on_files(files, "", tmp_func);
 
     // For each file
 
