@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "checks.h"
 #include "../main.h"
-
 
 #include "args.h"
 
@@ -19,8 +19,8 @@ bool parse_args(int argc, char *argv[])
 
         if (i == argc)
         {
-            printf("Missing an argument\n");
-            return 1;
+            fprintf(stderr, "Missing an argument\n");
+            exit(EXIT_FAILURE);
         }
 
         if (strcmp(arg, "-i") == 0 || strcmp(arg, "--ignore") == 0)
@@ -31,8 +31,8 @@ bool parse_args(int argc, char *argv[])
             }
             else
             {
-                printf(IGNORED_MESSAGE);
-                return false;
+                fprintf(stderr, IGNORED_MESSAGE);
+                exit(EXIT_FAILURE);
             };
         }
         else if (strcmp(arg, "-c") == 0 || strcmp(arg, "--color") == 0)
@@ -43,8 +43,8 @@ bool parse_args(int argc, char *argv[])
             }
             else
             {
-                printf(COLOR_MESSAGE);
-                return false;
+                fprintf(stderr, COLOR_MESSAGE);
+                exit(EXIT_FAILURE);
             }
         }
         else if (strcmp(arg, "-p") == 0 || strcmp(arg, "--path") == 0)
@@ -63,28 +63,37 @@ bool parse_args(int argc, char *argv[])
                     }
                     else
                     {
-                        printf(PATH_NMATCH_MESSAGE);
-                        return false;
+                        fprintf(stderr, PATH_NMATCH_MESSAGE);
+                        exit(EXIT_FAILURE);
                     }
                 }
                 vars->path = argv[i];
             }
             else
             {
-                printf(PATH_NEXISTS_MESSAGE);
-                return false;
+                fprintf(stderr, PATH_NEXISTS_MESSAGE);
+                exit(EXIT_FAILURE);
             }
         }
     }
 
-    if ( vars->ignored_color == NULL )
-        return false;
-    
-    if (vars->desired_color == NULL )
-        return false;
+    if (vars->ignored_color == NULL)
+    {
+        fprintf(stderr, "Ignored color not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (vars->desired_color == NULL)
+    {
+        fprintf(stderr, "Desired color not set\n");
+        exit(EXIT_FAILURE);
+    }
 
     if (vars->path == NULL)
-        return false;
+    {
+        fprintf(stderr, "Path to file(s) not set\n");
+        exit(EXIT_FAILURE);
+    }
 
     return true;
 }

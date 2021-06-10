@@ -62,32 +62,52 @@ bool check_color_format(char *color)
     return true;
 }
 
-bool check_is_png(FILE *file) {
-    if ( file == NULL ) {
-        return false;
+FILE *open_file_to_read(char *file_name)
+{
+    FILE *file = fopen(file_name, "r");
+
+    if (file == NULL)
+    {
+        fprintf(stderr, "Error opening file: %s\n", file_name);
     }
 
-    unsigned char bytes[8];
-    fread(bytes, 8, 1, file);
+    return file;
+}
+
+bool check_is_png(char *file_name)
+{
+    FILE *file = open_file_to_read(file_name);
+
+    if (file == NULL)
+    {
+        return false;
+    }
+    unsigned char bytes[4];
+    fread(bytes, 4, 1, file);
 
     if (
         bytes[0] == 137 &&
         bytes[1] == 80 &&
         bytes[2] == 78 &&
-        bytes[3] == 71 &&
-        bytes[4] == 13 &&
-        bytes[5] == 10 &&
-        bytes[6] == 26 &&
-        bytes[7] == 10
-    ) {
+        bytes[3] == 71 /*&&*/
+        // bytes[4] == 13 &&
+        // bytes[5] == 10 &&
+        // bytes[6] == 26 &&
+        // bytes[7] == 10
+    )
+    {
         return true;
     }
 
     return false;
 }
 
-bool check_is_jpg(FILE *file) {
-    if ( file == NULL ) {
+bool check_is_jpg(char *file_name)
+{
+    FILE *file = open_file_to_read(file_name);
+
+    if (file == NULL)
+    {
         return false;
     }
 
@@ -97,8 +117,8 @@ bool check_is_jpg(FILE *file) {
     if (
         bytes[0] == 0xff &&
         bytes[1] == 0xd8 &&
-        bytes[2] == 0xff
-    ) {
+        bytes[2] == 0xff)
+    {
         return true;
     }
 
