@@ -9,12 +9,12 @@ void color_changer(char *file_name)
     image *img = get_contents(file_name);
 
     printf("File: %s\n", file_name);
-    printf("%s\n", img->data);
+    // printf("%s\n", img->data);
 
     png_dimensions(img);
 
     printf("Width: %d\n", img->width);
-    printf("Height: %d\n\n", img->height);
+    printf("Height: %d\n", img->height);
 
     // write to new file
 }
