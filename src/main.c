@@ -110,7 +110,8 @@ void perform_on_files(sll *files, char prev_path[], void (*func)(char[]))
         {
             if (check_is_file(new_path) == true)
             {
-                if (check_is_png(new_path) == true || check_is_jpg(new_path) == true)
+                // pngs only, jpgs are weird
+                if (check_is_png(new_path) == true)
                 {
                     func(new_path);
                 }
@@ -132,7 +133,7 @@ void perform_on_files(sll *files, char prev_path[], void (*func)(char[]))
 
 int close_program(bool success)
 {
-    printf("Success: %s\n", success == 1 ? "true" : "false");
+    printf("\nSuccess: %s\n\n", success == 1 ? "true" : "false");
     free(vars);
     return success == 1 ? EXIT_SUCCESS : EXIT_FAILURE;
 }

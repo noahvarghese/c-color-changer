@@ -84,6 +84,7 @@ bool check_is_png(char *file_name)
     }
     unsigned char bytes[4];
     fread(bytes, 4, 1, file);
+    fclose(file);
 
     if (
         bytes[0] == 137 &&
@@ -111,14 +112,17 @@ bool check_is_jpg(char *file_name)
         return false;
     }
 
-    unsigned char bytes[3];
-    fread(bytes, 3, 1, file);
+    unsigned char bytes[4];
+    fread(bytes, 4, 1, file);
+    fclose(file);
 
     if (
         bytes[0] == 0xff &&
         bytes[1] == 0xd8 &&
-        bytes[2] == 0xff)
+        bytes[2] == 0xff &&
+        bytes[3] == 0xe0)
     {
+
         return true;
     }
 
