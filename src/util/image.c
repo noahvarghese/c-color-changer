@@ -20,9 +20,10 @@ void modify_png(image_png *png)
                 px[3] != vars->ignored[3])
             {
                 printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
-                px[0] = 0;
-                px[1] = 255;
-                px[2] = 0;
+                px[0] = vars->desired[0];
+                px[1] = vars->desired[1];
+                px[2] = vars->desired[2];
+                px[3] = vars->desired[3];
                 // Do something awesome for each pixel here...
             }
         }
