@@ -13,13 +13,17 @@ void modify_png(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (px[3] == 255)
+            if (
+                px[0] != vars->ignored[0] &&
+                px[1] != vars->ignored[1] &&
+                px[2] != vars->ignored[2] &&
+                px[3] != vars->ignored[3])
             {
+                printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
                 px[0] = 0;
                 px[1] = 255;
                 px[2] = 0;
                 // Do something awesome for each pixel here...
-                printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
             }
         }
     }

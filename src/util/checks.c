@@ -46,7 +46,7 @@ bool check_color_format(char *color)
 
     if (length != 8)
     {
-        printf("Color must be in rgba format without the hashtag (#)");
+        printf("Color must be in rgba format without the hashtag (#)\n");
         return false;
     }
 
