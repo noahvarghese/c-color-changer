@@ -3,12 +3,6 @@
 
 // Need to make sure there is always a null pointer at root's previous
 // Need to make sure there is always a null pointer as next
-typedef struct c_node
-{
-    int *color;
-    struct c_node *previous;
-    struct c_node *next;
-} c_node;
 
 typedef struct node
 {
@@ -21,4 +15,4 @@ typedef struct node
 
 #endif
 
-struct node *init_node();
+node *init_node();

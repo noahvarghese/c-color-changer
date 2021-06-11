@@ -8,7 +8,7 @@ bool is_transparent(png_bytep px)
     return false;
 }
 
-bool is_equal(png_bytep origin_px, int *compare_px)
+bool png_byte_is_equal(png_bytep origin_px, int *compare_px)
 {
 
     if (
