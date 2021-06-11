@@ -16,14 +16,17 @@ typedef struct image
 typedef struct image_png
 {
     char *name;
+    char *new_name;
     int width;
     int height;
-    png_structp png;
-    png_infop info;
-    png_bytep rows;
+    png_byte color_type;
+    png_byte bit_depth;
+    png_bytep *rows;
 } image_png;
 
-void parse_png(image_png *png);
+void modify_png(image_png *png);
+void write_png(image_png *png);
+void read_png(image_png *png);
 image_png *init_png_image();
 image *get_contents(char *file_name);
 void png_dimensions(image *img);

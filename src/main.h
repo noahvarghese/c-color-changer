@@ -1,7 +1,12 @@
-#ifndef GLOBAL_H 
+#ifndef GLOBAL_H
 #define GLOBAL_H
 
-typedef struct program_vars {
+#include <stdbool.h>
+
+typedef struct program_vars
+{
+    int *ignored;
+    int *desired;
     char *ignored_color;
     char *desired_color;
     char *path;

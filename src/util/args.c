@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "checks.h"
+#include "str.h"
 #include "../main.h"
 
 #include "args.h"
@@ -28,6 +29,7 @@ bool parse_args(int argc, char *argv[])
             if (check_color_format(argv[++i]) == true)
             {
                 vars->ignored_color = argv[i];
+                vars->ignored = hex_from_string(vars->ignored_color);
             }
             else
             {
@@ -40,6 +42,7 @@ bool parse_args(int argc, char *argv[])
             if (check_color_format(argv[++i]) == true)
             {
                 vars->desired_color = argv[i];
+                vars->desired = hex_from_string(vars->desired_color);
             }
             else
             {
