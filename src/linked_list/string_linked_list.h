@@ -1,7 +1,7 @@
 #ifndef LLH
 #define LLH
 
-#include "node.h"
+#include "string_node.h"
 
 typedef struct color_linked_list
 {

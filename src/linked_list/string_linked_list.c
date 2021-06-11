@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "../util/str.h"
-#include "node.h"
-#include "linked_list.h"
+#include "string_linked_list.h"
 #include "../main.h"
 
 bool cll_contains(color_ll *cll, int *color)
@@ -14,7 +13,7 @@ bool cll_contains(color_ll *cll, int *color)
 
     while (node != NULL)
     {
-        }
+    }
 }
 
 color_ll *init_cll()
@@ -39,7 +38,7 @@ sll *init_sll()
     return list;
 }
 
-node *get_at(sll *ll, int index)
+node *get_at_sll(sll *ll, int index)
 {
 
     if (ll->head->previous != NULL)
@@ -69,7 +68,7 @@ node *get_at(sll *ll, int index)
     return NULL;
 }
 
-void append_node_to_list(sll *list, struct node *node)
+void append_node_to_slist(sll *list, struct node *node)
 {
     // handles empty list
     if (list->head == NULL)
@@ -87,7 +86,7 @@ void append_node_to_list(sll *list, struct node *node)
     list->length++;
 }
 
-void append_data_to_list(sll *list, char *data)
+void append_data_to_slist(sll *list, char *data)
 {
     node *node = init_node();
     node->value = strdup(data);

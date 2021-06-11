@@ -11,8 +11,8 @@
 #include "./util/args.h"
 #include "./util/checks.h"
 #include "./util/color_changer.h"
-#include "./linked-list/node.h"
-#include "./linked-list/linked_list.h"
+#include "./linked_list/string_node.h"
+#include "./linked_list/string_linked_list.h"
 #include "./path/path.h"
 #include "main.h"
 

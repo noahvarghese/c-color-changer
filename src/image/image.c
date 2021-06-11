@@ -1,9 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <netinet/in.h>
 #include "image.h"
-#include "../linked-list/linked_list.h"
+#include "../linked_list/string_linked_list.h"
 #include "../main.h"
 
 char *modify_image_name(char *file_name)

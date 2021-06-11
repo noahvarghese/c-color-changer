@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "image.h"
 #include "pixel.h"
-#include "../linked-list/node.h"
-#include "../linked-list/linked_list.h"
+#include "../linked_list/string_node.h"
+#include "../linked_list/string_linked_list.h"
 #include "png.h"
 #include "../main.h"
 
@@ -177,7 +177,7 @@ void png_stats(image_png *png)
             png_bytep px = &(row[x * 4]);
             if (!is_equal(px, vars->ignored) && !is_transparent(px))
             {
-            }
+                        }
         }
     }
 }

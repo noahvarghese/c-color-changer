@@ -8,8 +8,8 @@ rm test/*_modified.png > /dev/null 2>&1
 gcc -o output/str.o src/util/str.c -c -g
 gcc -o output/checks.o src/util/checks.c -c -g
 gcc -o output/args.o src/util/args.c -c -g
-gcc -o output/node.o src/linked-list/node.c -c -g
-gcc -o output/linked_list.o src/linked-list/linked_list.c -c -g
+gcc -o output/string_node.o src/linked_list/string_node.c -c -g
+gcc -o output/string_linked_list.o src/linked_list/string_linked_list.c -c -g
 gcc -o output/image.o src/image/image.c -c -g
 gcc -o output/png.o src/image/png.c -c -g
 gcc -o output/pixel.o src/image/pixel.c -c -g

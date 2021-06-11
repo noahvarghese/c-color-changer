@@ -1,8 +1,8 @@
 #ifndef PATHH
 #define PATHH
 
-#include "../linked-list/node.h"
-#include "../linked-list/linked_list.h"
+#include "../linked_list/string_node.h"
+#include "../linked_list/string_linked_list.h"
 
 char *path_to_dir(char *file_path);
 char *path_to_charfile(char *prev_path, char *file_name);
