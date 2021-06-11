@@ -1,2 +1,4 @@
 output/*
 !output/.keep
+test/*_modified*
+.vscode-tmp
