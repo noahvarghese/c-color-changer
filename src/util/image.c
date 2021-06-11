@@ -4,6 +4,96 @@
 #include <netinet/in.h>
 #include "image.h"
 
+image_png *init_png_image(char *name)
+{
+    image_png *png = (image_png *)malloc(sizeof(image_png));
+    png->name = name;
+    png->height = 0;
+    png->width = 0;
+    png->png = NULL;
+    png->rows = NULL;
+    png->info = NULL;
+    return png;
+}
+
+void parse_png(image_png *png_image)
+{
+    printf("File: %s\n", png_image->name);
+    int width, height;
+    png_byte color_type, bit_depth;
+    png_bytep *rows = NULL;
+
+    FILE *file = fopen(png_image->name, "r");
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+    if (!png)
+        exit(EXIT_FAILURE);
+
+    png_infop info = png_create_info_struct(png);
+
+    if (!info)
+        exit(EXIT_FAILURE);
+
+    if (setjmp(png_jmpbuf(png)))
+        exit(EXIT_FAILURE);
+
+    png_init_io(png, file);
+
+    png_read_info(png, info);
+
+    width = png_get_image_width(png, info);
+    height = png_get_image_height(png, info);
+    color_type = png_get_color_type(png, info);
+    bit_depth = png_get_bit_depth(png, info);
+
+    // Read any color_type into 8bit depth, RGBA format.
+    // See http://www.libpng.org/pub/png/libpng-manual.txt
+
+    if (bit_depth == 16)
+        png_set_strip_16(png);
+
+    if (color_type == PNG_COLOR_TYPE_PALETTE)
+        png_set_palette_to_rgb(png);
+
+    // PNG_COLOR_TYPE_GRAY_ALPHA is always 8 or 16bit depth.
+    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+        png_set_expand_gray_1_2_4_to_8(png);
+
+    if (png_get_valid(png, info, PNG_INFO_tRNS))
+        png_set_tRNS_to_alpha(png);
+
+    // These color_type don't have an alpha channel then fill it with 0xff.
+    if (color_type == PNG_COLOR_TYPE_RGB ||
+        color_type == PNG_COLOR_TYPE_GRAY ||
+        color_type == PNG_COLOR_TYPE_PALETTE)
+        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+
+    if (color_type == PNG_COLOR_TYPE_GRAY ||
+        color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+        png_set_gray_to_rgb(png);
+
+    if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+        printf("YAY THIS HAS ALPHA");
+
+    png_read_update_info(png, info);
+
+    if (rows)
+        abort();
+
+    rows = (png_bytep *)malloc(sizeof(png_bytep) * height);
+    for (int y = 0; y < height; y++)
+    {
+        rows[y] = (png_byte *)malloc(png_get_rowbytes(png, info));
+    }
+
+    png_read_image(png, rows);
+
+    fclose(file);
+
+    png_destroy_read_struct(&png, &info, NULL);
+}
+
 image *init_image(char *file_name)
 {
     image *img = (image *)malloc(sizeof(image));
