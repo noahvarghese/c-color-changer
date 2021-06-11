@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "color_node.h"
 
 bool rgba_is_equal(int *origin, int *compare)
@@ -13,4 +14,13 @@ bool rgba_is_equal(int *origin, int *compare)
     }
 
     return false;
+}
+
+c_node *init_c_node()
+{
+    c_node *node = (c_node *)malloc(sizeof(c_node));
+    node->color = NULL;
+    node->next = NULL;
+    node->previous = NULL;
+    return node;
 }

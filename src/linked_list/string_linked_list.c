@@ -24,7 +24,19 @@ node *get_at_sll(sll *ll, int index)
     if (ll->head->previous != NULL)
     {
         printf("Node is not the head\n");
-        exit(8);
+        exit(EXIT_FAILURE);
+    }
+
+    if (index < 0)
+    {
+        printf("Index cannot be less than 0\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (index > ll->length - 1)
+    {
+        printf("Index is greater than the length.");
+        exit(EXIT_FAILURE);
     }
 
     if (index == 0)
@@ -32,10 +44,15 @@ node *get_at_sll(sll *ll, int index)
         return ll->head;
     }
 
+    if (index == ll->length - 1)
+    {
+        return ll->tail;
+    }
+
     int count = 0;
     node *node = ll->head;
 
-    while (node->next != NULL)
+    do
     {
         if (count == index)
         {
@@ -43,7 +60,7 @@ node *get_at_sll(sll *ll, int index)
         }
         node = node->next;
         count++;
-    }
+    } while (node->next != NULL);
 
     return NULL;
 }
@@ -70,7 +87,7 @@ void append_data_to_slist(sll *list, char *data)
 {
     node *node = init_node();
     node->value = strdup(data);
-    append_node_to_list(list, node);
+    append_node_to_slist(list, node);
 }
 
 sll *sll_from_string(char files[], const char _delim)

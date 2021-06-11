@@ -13,3 +13,4 @@ typedef struct c_node
 #endif
 
 bool rgba_is_equal(int *origin, int *compare);
+c_node *init_c_node();

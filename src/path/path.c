@@ -75,7 +75,7 @@ sll *read_dir(char *dirname)
             // if not the previous directory
             if (strcmp(dp->d_name, "..") != 0)
             {
-                append_data_to_list(files, dp->d_name);
+                append_data_to_slist(files, dp->d_name);
             }
         }
     }

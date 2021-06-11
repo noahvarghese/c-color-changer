@@ -14,6 +14,6 @@ typedef struct slinked_list
 
 sll *init_sll();
 node *get_at(sll *ll, int index);
-void append_node_to_list(sll *list, node *node);
-void append_data_to_list(sll *list, char *string);
+void append_node_to_slist(sll *list, node *node);
+void append_data_to_slist(sll *list, char *string);
 sll *sll_from_string(char files_string[], const char files_delim);
