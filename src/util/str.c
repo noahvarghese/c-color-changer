@@ -8,7 +8,7 @@
 int *hex_from_string(char *color)
 {
     int counter = 0;
-    int *return_value = (int *)malloc(sizeof(int) * 3);
+    int *return_value = (int *)malloc(sizeof(int) * 4);
 
     char *tmp = (char *)malloc(sizeof(char) * 3);
 
@@ -17,6 +17,7 @@ int *hex_from_string(char *color)
         tmp[0] = color[i];
         tmp[1] = color[i + 1];
         tmp[2] = '\0';
+        // convert string to long using base 16
         return_value[counter++] = (int)strtol(tmp, NULL, 16);
     }
 

@@ -43,6 +43,13 @@ bool check_file_exists(const char *filename)
 bool check_color_format(char *color)
 {
     int length = strlen(color);
+
+    if (length != 8)
+    {
+        printf("Color must be in rgba format without the hashtag (#)");
+        return false;
+    }
+
     int start = ((int)color[0]) == '#' ? 1 : 0;
 
     // uppercase string

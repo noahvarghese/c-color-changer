@@ -13,7 +13,7 @@ void modify_png(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (px[3] != 0)
+            if (px[3] == 255)
             {
                 px[0] = 0;
                 px[1] = 255;
