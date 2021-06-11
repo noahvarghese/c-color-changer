@@ -1,17 +1,7 @@
-#ifndef IMAGEH
-#define IMAGEH
+#ifndef PNGH
+#define PNGH
 
-#include <stdio.h>
 #include <png.h>
-
-typedef struct image
-{
-    char *file_name;
-    char *data;
-    int data_length;
-    unsigned int width;
-    unsigned int height;
-} image;
 
 typedef struct image_png
 {
@@ -24,13 +14,10 @@ typedef struct image_png
     png_bytep *rows;
 } image_png;
 
+image_png *init_png_image();
 void free_png(image_png *png);
 void modify_png(image_png *png);
 void write_png(image_png *png);
 void read_png(image_png *png);
-image_png *init_png_image();
-image *get_contents(char *file_name);
-void png_dimensions(image *img);
-void jpg_dimensions(image *img);
 
 #endif

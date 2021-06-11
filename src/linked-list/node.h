@@ -3,7 +3,15 @@
 
 // Need to make sure there is always a null pointer at root's previous
 // Need to make sure there is always a null pointer as next
-typedef struct node {
+typedef struct c_node
+{
+    int *color;
+    struct c_node *previous;
+    struct c_node *next;
+} c_node;
+
+typedef struct node
+{
     // Make sure to null terminate and leave space (strlen + 1)
     // Make it the full path
     char *value;
@@ -13,4 +21,4 @@ typedef struct node {
 
 #endif
 
-struct node* init_node();
+struct node *init_node();
