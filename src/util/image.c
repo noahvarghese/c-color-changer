@@ -128,7 +128,6 @@ void write_png(image_png *png_image)
         free(png_image->rows[i]);
     }
 
-    free_png(png_image);
     fclose(file);
     png_destroy_write_struct(&png, &info);
 }

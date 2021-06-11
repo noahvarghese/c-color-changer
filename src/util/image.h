@@ -24,6 +24,7 @@ typedef struct image_png
     png_bytep *rows;
 } image_png;
 
+void free_png(image_png *png);
 void modify_png(image_png *png);
 void write_png(image_png *png);
 void read_png(image_png *png);

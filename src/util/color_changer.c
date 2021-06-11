@@ -15,4 +15,5 @@ void color_changer(char *file_name)
     read_png(png);
     modify_png(png);
     write_png(png);
+    free_png(png);
 }
