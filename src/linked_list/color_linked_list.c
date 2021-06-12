@@ -5,7 +5,7 @@ c_node *get_most_frequent(color_ll *cll, int occurence)
 {
     if (cll->head == NULL && cll->length == 0)
     {
-        return;
+        return NULL;
     }
 
     if (cll->head->previous != NULL)

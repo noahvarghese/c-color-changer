@@ -23,6 +23,6 @@ gcc output/str.o output/checks.o output/args.o output/string_node.o    \
 output/string_linked_list.o output/color_node.o output/color_linked_list.o  \
 output/pixel.o output/png.o output/image.o output/color_changer.o \
 output/path.o output/main.o \
--o c-color-changer -g -lpng
+-o c-color-changer -g -lpng -lm
 
 echo "Build completed"

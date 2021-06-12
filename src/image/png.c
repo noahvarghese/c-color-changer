@@ -206,7 +206,11 @@ void modify_png(image_png *png)
             if (!png_bytep_is_equal(px, vars->ignored, 0) && !png_bytep_is_transparent(px))
             {
                 // printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
-                copy_to_png_bytep(px, vars->desired);
+                int *hsb = intp_to_hsb(vars->desired);
+                // figure out how many steps of hue to change
+                // modify h in hsb
+                int *rgba = hsb_to_intp(hsb);
+                copy_to_png_bytep(px, rgba);
                 // px[0] = vars->desired[0];
                 // px[1] = vars->desired[1];
                 // px[2] = vars->desired[2];
