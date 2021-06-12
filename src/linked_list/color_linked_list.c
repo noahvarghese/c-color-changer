@@ -1,6 +1,41 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
+c_node *get_most_frequent(color_ll *cll, int occurence)
+{
+    if (cll->head == NULL && cll->length == 0)
+    {
+        return;
+    }
+
+    if (cll->head->previous != NULL)
+    {
+        printf("Node is not the head\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (cll->length < 1)
+    {
+        printf("List is empty\n");
+        exit(EXIT_FAILURE);
+    }
+
+    c_node *node = cll->head;
+    int max = 0;
+    c_node *max_node = node;
+
+    do
+    {
+        if (node->occurences > max)
+        {
+            max = node->occurences;
+            max_node = node;
+        }
+    } while (node = node->next);
+
+    return node;
+}
+
 void update_color_occurence(color_ll *cll, png_bytep color)
 {
     if (cll->head == NULL && cll->length == 0)

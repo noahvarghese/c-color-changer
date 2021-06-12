@@ -25,3 +25,4 @@ bool cll_contains(color_ll *cll, int *color);
 void append_png_bytep_to_cll(color_ll *cll, png_bytep color);
 void append_intp_to_cll(color_ll *cll, int *color);
 void append_node_to_cll(color_ll *cll, c_node *node);
+c_node *get_most_frequent(color_ll *cll, int occurence);
