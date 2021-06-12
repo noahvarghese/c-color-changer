@@ -20,6 +20,10 @@ sll *init_sll()
 
 node *get_at_sll(sll *ll, int index)
 {
+    if (ll->head == NULL && ll->length == 0)
+    {
+        return false;
+    }
 
     if (ll->head->previous != NULL)
     {

@@ -3,6 +3,11 @@
 
 void update_color_occurence(color_ll *cll, png_bytep color)
 {
+    if (cll->head == NULL && cll->length == 0)
+    {
+        return;
+    }
+
     if (cll->head->previous != NULL)
     {
         printf("Node is not the head\n");
@@ -57,6 +62,11 @@ bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color)
 
 bool intp_exists_in_cll(color_ll *cll, int *color)
 {
+    if (cll->head == NULL && cll->length == 0)
+    {
+        return false;
+    }
+
     if (cll->head->previous != NULL)
     {
         printf("Node is not the head\n");
@@ -78,6 +88,11 @@ bool intp_exists_in_cll(color_ll *cll, int *color)
 
 c_node *get_at_cll(color_ll *cll, int index)
 {
+    if (cll->head == NULL && cll->length == 0)
+    {
+        return NULL;
+    }
+
     if (cll->head->previous != NULL)
     {
         printf("Node is not the head\n");
