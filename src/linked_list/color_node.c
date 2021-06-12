@@ -22,5 +22,6 @@ c_node *init_c_node()
     node->color = NULL;
     node->next = NULL;
     node->previous = NULL;
+    node->occurences = 0;
     return node;
 }

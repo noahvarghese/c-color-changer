@@ -20,6 +20,7 @@ void color_changer(char *file_name)
 {
     image_png *png = init_png_image(file_name);
     read_png(png);
+    png_stats(png);
     modify_png(png);
     write_png(png);
     free_png(png);

@@ -31,21 +31,41 @@ bool intp_is_equal(int *origin, int *compare)
     return false;
 }
 
-bool png_bytep_is_equal(png_bytep origin_px, int *compare_px)
+bool compare_near(int value, int other_value, int tolerance)
+{
+    return value == other_value || abs(value - other_value) <= tolerance;
+}
+
+bool png_bytep_is_equal(png_bytep origin_px, int *compare_px, int tolerance)
 {
     if (
-        origin_px[0] == compare_px[0] &&
-        origin_px[1] == compare_px[1] &&
-        origin_px[2] == compare_px[2] &&
-        origin_px[3] == compare_px[3])
+        compare_near(origin_px[0], compare_px[0], tolerance) &&
+        compare_near(origin_px[1], compare_px[1], tolerance) &&
+        compare_near(origin_px[2], compare_px[2], tolerance))
     {
         return true;
     }
+    // if (
+    //     origin_px[0] == compare_px[0] &&
+    //     origin_px[1] == compare_px[1] &&
+    //     origin_px[2] == compare_px[2] &&
+    //     origin_px[3] == compare_px[3])
+    // {
+    //     return true;
+    // }
 
     return false;
 }
 
-void copy_pixel(png_bytep dest, int *src)
+void copy_to_intp(int *dest, png_bytep src)
+{
+    dest[0] = src[0];
+    dest[1] = src[1];
+    dest[2] = src[2];
+    dest[3] = src[3];
+}
+
+void copy_to_png_bytep(png_bytep dest, int *src)
 {
     dest[0] = src[0];
     dest[1] = src[1];
@@ -56,6 +76,13 @@ void copy_pixel(png_bytep dest, int *src)
 png_bytep png_bytep_from_intp(int *px)
 {
     png_bytep new_px = (png_bytep)malloc(sizeof(png_byte));
-    copy_pixel(new_px, px);
+    copy_to_png_bytep(new_px, px);
+    return new_px;
+}
+
+int *intp_from_png_bytep(png_bytep px)
+{
+    int *new_px = (int *)malloc(sizeof(int) * 4);
+    copy_to_intp(new_px, px);
     return new_px;
 }

@@ -136,8 +136,8 @@ void read_png(image_png *png_image)
         png_image->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
         png_set_gray_to_rgb(png);
 
-    if (png_image->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
-        printf("YAY THIS HAS ALPHA");
+    // if (png_image->color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+    //     printf("YAY THIS HAS ALPHA\n");
 
     png_read_update_info(png, info);
 
@@ -175,11 +175,24 @@ void png_stats(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!png_bytep_is_equal(px, vars->ignored) && !png_bytep_is_transparent(px))
+            if (!png_bytep_is_equal(px, vars->ignored, 0) && !png_bytep_is_transparent(px))
             {
+                // check if pixel exists
+                // if not add
+                // else update occurences
+                if (png_bytep_exists_in_cll(cll, px))
+                    update_color_occurence(cll, px);
+                else
+                    append_png_bytep_to_cll(cll, px);
+
+                // calculate full hex number as int
+                // check if is max/min
             }
         }
     }
+
+    printf("Number of colors in image: %d\n", cll->length);
+    // calculate mean
 }
 
 void modify_png(image_png *png)
@@ -190,10 +203,10 @@ void modify_png(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!png_bytep_is_equal(px, vars->ignored) && !png_bytep_is_transparent(px))
+            if (!png_bytep_is_equal(px, vars->ignored, 0) && !png_bytep_is_transparent(px))
             {
-                printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
-                copy_pixel(px, vars->desired);
+                // printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
+                copy_to_png_bytep(px, vars->desired);
                 // px[0] = vars->desired[0];
                 // px[1] = vars->desired[1];
                 // px[2] = vars->desired[2];
