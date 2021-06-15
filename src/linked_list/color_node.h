@@ -2,10 +2,11 @@
 #define COLORNH
 
 #include <stdbool.h>
+#include "../image/pixel.h"
 
 typedef struct c_node
 {
-    int *color;
+    color *color;
     int occurences;
     struct c_node *previous;
     struct c_node *next;

@@ -4,17 +4,42 @@
 #include <png.h>
 #include <stdbool.h>
 
+union px_byte
+{
+    int *i;
+    png_bytep p;
+};
+
+enum px_byte_type
+{
+    INT = 0,
+    PNG_BYTEP = 1
+};
+
+typedef struct rgba
+{
+    union px_byte px;
+    enum px_byte_type type;
+} rgba;
+
+typedef struct hsv
+{
+    int h;
+    float s;
+    float v;
+} hsv;
+
+typedef struct color
+{
+    struct hsv *original_hsv;
+    struct hsv *mod_hsv;
+    rgba *mod_color;
+    rgba *original_color;
+} color;
+
 #endif
 
-bool png_bytep_is_equal(png_bytep origin_px, int *compare_px, int tolerance);
-bool intp_is_equal(int *origin, int *compare);
-void copy_to_png_bytep(png_bytep dest, int *src);
-void copy_to_intp(int *dest, png_bytep src);
-bool png_bytep_is_transparent(png_bytep px);
-bool intp_is_transparent(int *px);
-png_bytep png_bytep_from_intp(int *px);
-int *intp_from_png_bytep(png_bytep px);
-int *png_bytep_to_hsb(png_bytep px);
-int *intp_to_hsb(int *px);
-png_bytep hsb_to_png_bytep(int *hsb);
-int *hsb_to_intp(int *hsb);
+bool color_is_equal(rgba origin_px, rgba *compare_px, int tolerance);
+bool color_is_transparent(rgba px);
+void rgba_to_hsv(color *px);
+void hsv_to_rgba(color *px);

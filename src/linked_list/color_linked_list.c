@@ -171,9 +171,11 @@ c_node *get_at_cll(color_ll *cll, int index)
     return NULL;
 }
 
-void append_png_bytep_to_cll(color_ll *cll, png_bytep color)
+void append_png_bytep_to_cll(color_ll *cll, png_bytep px)
 {
-    int *data = intp_from_png_bytep(color);
+    // int *data = intp_from_png_bytep(color);
+    color *data = (color *)malloc(sizeof(color));
+    data->original_color.p = px;
 
     c_node *node = init_c_node();
     node->color = data;

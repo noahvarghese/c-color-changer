@@ -46,59 +46,52 @@ bool png_bytep_is_equal(png_bytep origin_px, int *compare_px, int tolerance)
     {
         return true;
     }
-    // if (
-    //     origin_px[0] == compare_px[0] &&
-    //     origin_px[1] == compare_px[1] &&
-    //     origin_px[2] == compare_px[2] &&
-    //     origin_px[3] == compare_px[3])
-    // {
-    //     return true;
-    // }
 
     return false;
 }
 
-void copy_to_intp(int *dest, png_bytep src)
+void rgba_to_hsv(color *col)
 {
-    dest[0] = src[0];
-    dest[1] = src[1];
-    dest[2] = src[2];
-    dest[3] = src[3];
-}
+    hsv *hsvp;
+    rgba *rgbap;
 
-void copy_to_png_bytep(png_bytep dest, int *src)
-{
-    dest[0] = src[0];
-    dest[1] = src[1];
-    dest[2] = src[2];
-    dest[3] = src[3];
-}
+    if (col->mod_hsv == NULL && col->mod_color != NULL)
+    {
+        hsvp = col->mod_hsv;
+        rgbap = col->mod_color;
+    }
+    else if (col->original_hsv == NULL && col->original_color != NULL)
+    {
+        hsvp = col->original_hsv;
+        rgbap = col->original_color;
+    }
+    else
+    {
+        fprintf(stderr, "COLORS EIThER EMPTY OR HSV IS ALREADY COMPUTED\n");
+        abort();
+    }
 
-png_bytep png_bytep_from_intp(int *px)
-{
-    png_bytep new_px = (png_bytep)malloc(sizeof(png_byte));
-    copy_to_png_bytep(new_px, px);
-    return new_px;
-}
+    int r, g, b;
 
-int *intp_from_png_bytep(png_bytep px)
-{
-    int *new_px = (int *)malloc(sizeof(int) * 4);
-    copy_to_intp(new_px, px);
-    return new_px;
-}
+    if (rgbap->type == INT)
+    {
+        r = rgbap->px.i[0];
+        g = rgbap->px.i[1];
+        b = rgbap->px.i[2];
+    }
+    else
+    {
+        r = rgbap->px.p[0];
+        g = rgbap->px.p[1];
+        b = rgbap->px.p[2];
+    }
 
-int *png_bytep_to_hsb(png_bytep px)
-{
-    int *hsb = (int *)malloc(sizeof(int) * 4);
+    r /= 255;
+    g /= 255;
+    b /= 255;
 
-    // make ranger from 0 - 1
-    double r = px[0] / 255,
-           g = px[1] / 255,
-           b = px[2] / 255,
-           a = px[3];
-
-    double h, s, l;
+    int h;
+    float s, v;
 
     double cmax = fmax(r, fmax(g, b));
     double cmin = fmin(r, fmin(g, b));
@@ -108,78 +101,27 @@ int *png_bytep_to_hsb(png_bytep px)
     if (cmax == cmin)
         h = 0;
     else if (cmax == r)
-        h = fmod(60 * ((g - b) / delta) + 360, mod);
+        h = 60 * fmod((g - b) / delta, 6);
     else if (cmax == g)
-        h = fmod(60 * ((b - r) / delta) + 120, mod);
+        h = 60 * (((b - r) / delta) + 2);
     else if (cmax == b)
-        h = fmod(60 * ((r - g) / delta) + 240, mod);
+        h = 60 * (((r - g) / delta) + 4);
 
-    if (delta == 0)
+    if (cmax == 0)
         s = 0;
     else
-        s = (delta / cmax) * 100;
+        s = delta / cmax;
 
-    b = (cmax + cmin) / 2;
+    // b = (cmax + cmin) / 2;
+    v = cmax;
 
-    hsb[0] = round(h);
-    hsb[1] = round(s);
-    hsb[2] = round(b);
-    hsb[3] = px[3];
-
-    return hsb;
-}
-
-int *intp_to_hsb(int *px)
-{
-    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n", px[0], px[1], px[2], px[3]);
-
-    int *hsl = (int *)malloc(sizeof(int) * 4);
-
-    // make ranger from 0 - 1
-    double r = (double)px[0] / 255,
-           g = (double)px[1] / 255,
-           b = (double)px[2] / 255,
-           a = px[3];
-
-    double h, s, l;
-
-    double cmax = fmax(r, fmax(g, b));
-    double cmin = fmin(r, fmin(g, b));
-    double delta = cmax - cmin;
-    double mod = 360;
-
-    if (cmax == cmin)
-        h = 0;
-    else if (cmax == r)
-        h = fmod((double)(60 * ((g - b) / delta) + 360), mod);
-    else if (cmax == g)
-        h = fmod(60 * ((b - r) / delta) + 120, mod);
-    else if (cmax == b)
-        h = fmod((double)(60 * ((r - g) / delta) + 240), mod);
-
-    if (delta == 0)
-        s = 0;
-
-    else
-        s = (delta / cmax) * 100;
-
-    l = ((cmax + cmin) / 2) * 100;
-
-    hsl[0] = (int)round(h);
-    hsl[1] = (int)round(s);
-    hsl[2] = (int)round(l);
-    hsl[3] = a;
-
-    printf("HSLA -> h: %3d s: %3d l: %3d a: %3d\n", hsl[0], hsl[1], hsl[2], hsl[3]);
-    return hsl;
-}
-
-png_bytep hsb_to_png_bytep(int *hsb)
-{
+    hsvp->h = round(h);
+    hsvp->s = round(s);
+    hsvp->v = round(v);
 }
 
 // THIS IS HSL NOT HSV
-int *hsb_to_intp(int *hsb)
+void *hsv_to_rgba(color *col)
 {
     printf("HSBA -> h: %3d s: %3d b: %3d a: %3d\n", hsb[0], hsb[1], hsb[2], hsb[3]);
     int r, g, b;
