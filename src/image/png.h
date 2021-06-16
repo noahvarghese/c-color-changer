@@ -2,6 +2,7 @@
 #define PNGH
 
 #include <png.h>
+#include "../linked_list/color_linked_list.h"
 
 typedef struct image_png
 {
@@ -16,9 +17,9 @@ typedef struct image_png
 
 image_png *init_png_image();
 void free_png(image_png *png);
-void modify_png(image_png *png);
+void modify_png(image_png *png, color_ll *cll);
 void write_png(image_png *png);
 void read_png(image_png *png);
-void png_stats(image_png *png);
+void png_stats(image_png *png, color_ll *cll);
 
 #endif

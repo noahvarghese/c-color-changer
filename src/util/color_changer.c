@@ -6,6 +6,7 @@
 #include "checks.h"
 #include "../image/png.h"
 #include "str.h"
+#include "../linked_list/color_linked_list.h"
 #include "../main.h"
 
 void calc_hues(image_png *png)
@@ -18,10 +19,13 @@ void calc_hues(image_png *png)
 // Only deal with pngs
 void color_changer(char *file_name)
 {
+    color_ll *cll = init_cll();
     image_png *png = init_png_image(file_name);
     read_png(png);
-    png_stats(png);
-    modify_png(png);
+    png_stats(png, cll);
+    modify_png(png, cll);
     write_png(png);
     free_png(png);
+    // not implemented
+    free(cll);
 }

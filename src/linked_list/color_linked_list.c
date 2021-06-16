@@ -1,6 +1,42 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
+c_node *find_by_original_color(color_ll *cll, int *rgba)
+{
+    if (cll->head == NULL && cll->length == 0)
+    {
+        return NULL;
+    }
+
+    if (cll->head->previous != NULL)
+    {
+        printf("Node is not the head\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (cll->length < 1)
+    {
+        printf("List is empty\n");
+        exit(EXIT_FAILURE);
+    }
+
+    c_node *node = cll->head;
+
+    do
+    {
+        if (
+            rgba_is_equal(
+                (png_bytep)rgba,
+                node->color->original_color->type == INT ? node->color->original_color->px.i : (int *)node->color->original_color->px.p,
+                10))
+        {
+            return node;
+        }
+    } while (node = node->next);
+
+    return NULL;
+}
+
 c_node *get_most_frequent(color_ll *cll, int occurence)
 {
     if (cll->head == NULL && cll->length == 0)
@@ -59,7 +95,7 @@ void update_color_occurence(color_ll *cll, png_bytep color)
 
     do
     {
-        if (png_bytep_is_equal(color, node->color, 10))
+        if (rgba_is_equal(color, (int *)node->color->original_color->px.p, 10))
         {
             node->occurences++;
             return;
@@ -86,33 +122,7 @@ bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color)
 
     do
     {
-        if (png_bytep_is_equal(color, node->color, 10))
-        {
-            return true;
-        }
-    } while (node = node->next);
-
-    return false;
-}
-
-bool intp_exists_in_cll(color_ll *cll, int *color)
-{
-    if (cll->head == NULL && cll->length == 0)
-    {
-        return false;
-    }
-
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
-    }
-
-    c_node *node = cll->head;
-
-    do
-    {
-        if (intp_is_equal(color, node->color))
+        if (rgba_is_equal(color, (int *)node->color->original_color->px.p, 10))
         {
             return true;
         }
@@ -171,22 +181,15 @@ c_node *get_at_cll(color_ll *cll, int index)
     return NULL;
 }
 
-void append_png_bytep_to_cll(color_ll *cll, png_bytep px)
+void append_data_to_cll(color_ll *cll, png_bytep px)
 {
-    // int *data = intp_from_png_bytep(color);
-    color *data = (color *)malloc(sizeof(color));
-    data->original_color.p = px;
+    color *col = init_color();
+    col->original_color = (rgba *)malloc(sizeof(rgba));
+    col->original_color->type = PNG_BYTEP;
+    col->original_color->px.p = px;
 
     c_node *node = init_c_node();
-    node->color = data;
-    node->occurences = 1;
-    append_node_to_cll(cll, node);
-}
-
-void append_intp_to_cll(color_ll *cll, int *color)
-{
-    c_node *node = init_c_node();
-    node->color = color;
+    node->color = col;
     node->occurences = 1;
     append_node_to_cll(cll, node);
 }
@@ -206,21 +209,6 @@ void append_node_to_cll(color_ll *cll, c_node *node)
     }
 
     cll->length++;
-}
-
-bool cll_contains(color_ll *cll, int *color)
-{
-    c_node *node = cll->head;
-
-    while (node != NULL)
-    {
-        if (rgba_is_equal(node->color, color))
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 color_ll *init_cll()

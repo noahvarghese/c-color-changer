@@ -2,7 +2,6 @@
 #include "image.h"
 #include "pixel.h"
 #include "../linked_list/color_node.h"
-#include "../linked_list/color_linked_list.h"
 #include "png.h"
 #include "../main.h"
 
@@ -157,10 +156,9 @@ void read_png(image_png *png_image)
     png_destroy_read_struct(&png, &info, NULL);
 }
 
-void png_stats(image_png *png)
+void png_stats(image_png *png, color_ll *cll)
 {
     // get number of different colors that are not the ignored_color, use linked list (make one for pixel arrays),
-    color_ll *cll = init_cll();
 
     // get the mean color of all except ignored_color
     int mean[4] = {0, 0, 0, 0};
@@ -175,7 +173,7 @@ void png_stats(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!png_bytep_is_equal(px, vars->ignored, 0) && !png_bytep_is_transparent(px))
+            if (!rgba_is_equal(px, vars->ignored, 0) && px[3] != 0)
             {
                 // check if pixel exists
                 // if not add
@@ -183,7 +181,7 @@ void png_stats(image_png *png)
                 if (png_bytep_exists_in_cll(cll, px))
                     update_color_occurence(cll, px);
                 else
-                    append_png_bytep_to_cll(cll, px);
+                    append_data_to_cll(cll, px);
 
                 // calculate full hex number as int
                 // check if is max/min
@@ -195,7 +193,7 @@ void png_stats(image_png *png)
     // calculate mean
 }
 
-void modify_png(image_png *png)
+void modify_png(image_png *png, color_ll *cll)
 {
     for (int y = 0; y < png->height; y++)
     {
@@ -203,19 +201,36 @@ void modify_png(image_png *png)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!png_bytep_is_equal(px, vars->ignored, 0) && !png_bytep_is_transparent(px))
+            if (!rgba_is_equal(px, vars->ignored, 0) && px[3] != 0)
             {
+                c_node *node = find_by_original_color(cll, (int *)px);
+
+                if (node == NULL)
+                {
+                    continue;
+                }
+
+                if (node->color->original_hsv == NULL)
+                {
+                    rgba_to_hsv(node->color);
+                }
+
+                if (node->color->mod_hsv == NULL)
+                {
+                    // calc new color from old hue
+                }
+
+                if (node->color->mod_color == NULL)
+                {
+                    hsv_to_rgba(node->color);
+                }
+
                 // printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
-                int *hsb = intp_to_hsb(vars->desired);
+                // int *hsb = intp_to_hsb(vars->desired);
                 // figure out how many steps of hue to change
                 // modify h in hsb
-                int *rgba = hsb_to_intp(hsb);
-                copy_to_png_bytep(px, rgba);
-                // px[0] = vars->desired[0];
-                // px[1] = vars->desired[1];
-                // px[2] = vars->desired[2];
-                // px[3] = vars->desired[3];
-                // Do something awesome for each pixel here...
+                // int *rgba = hsb_to_intp(hsb);
+                copy_to_px(px, node->color->mod_color->px.i);
             }
         }
     }

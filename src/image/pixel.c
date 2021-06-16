@@ -2,20 +2,12 @@
 #include <math.h>
 #include "pixel.h"
 
-bool intp_is_transparent(int *px)
+void copy_to_px(png_bytep px, int *rgba)
 {
-    if (px[3] == 0)
-        return true;
-
-    return false;
-}
-
-bool png_bytep_is_transparent(png_bytep px)
-{
-    if (px[3] == 0)
-        return true;
-
-    return false;
+    px[0] = rgba[0];
+    px[1] = rgba[1];
+    px[2] = rgba[2];
+    px[3] = rgba[3];
 }
 
 bool intp_is_equal(int *origin, int *compare)
@@ -37,17 +29,27 @@ bool compare_near(int value, int other_value, int tolerance)
     return value == other_value || abs(value - other_value) <= tolerance;
 }
 
-bool png_bytep_is_equal(png_bytep origin_px, int *compare_px, int tolerance)
+bool rgba_is_equal(png_bytep image_px, int *node_px, int tolerance)
 {
     if (
-        compare_near(origin_px[0], compare_px[0], tolerance) &&
-        compare_near(origin_px[1], compare_px[1], tolerance) &&
-        compare_near(origin_px[2], compare_px[2], tolerance))
+        compare_near(image_px[0], node_px[0], tolerance) &&
+        compare_near(image_px[1], node_px[1], tolerance) &&
+        compare_near(image_px[2], node_px[2], tolerance))
     {
         return true;
     }
 
     return false;
+}
+
+color *init_color()
+{
+    color *col = (color *)malloc(sizeof(color));
+    col->original_color = NULL;
+    col->original_hsv = NULL;
+    col->mod_color = NULL;
+    col->mod_hsv = NULL;
+    return col;
 }
 
 void rgba_to_hsv(color *col)
@@ -57,11 +59,13 @@ void rgba_to_hsv(color *col)
 
     if (col->mod_hsv == NULL && col->mod_color != NULL)
     {
+        col->mod_hsv = (hsv *)malloc(sizeof(hsv));
         hsvp = col->mod_hsv;
         rgbap = col->mod_color;
     }
     else if (col->original_hsv == NULL && col->original_color != NULL)
     {
+        col->original_hsv = (hsv *)malloc(sizeof(hsv));
         hsvp = col->original_hsv;
         rgbap = col->original_color;
     }
@@ -120,23 +124,59 @@ void rgba_to_hsv(color *col)
     hsvp->v = round(v);
 }
 
-// THIS IS HSL NOT HSV
-void *hsv_to_rgba(color *col)
+int get_alpha(rgba *rgbap)
 {
-    printf("HSBA -> h: %3d s: %3d b: %3d a: %3d\n", hsb[0], hsb[1], hsb[2], hsb[3]);
-    int r, g, b;
-    float _r, _g, _b;
+    if (rgbap->type == INT)
+    {
+        return rgbap->px.i[3];
+    }
+    else
+    {
+        return rgbap->px.p[3];
+    }
+}
 
-    float h = (float)hsb[0],
-          s = (float)hsb[1] / 100.0,
-          l = ((float)hsb[2]) / 100.0,
-          a = (float)hsb[3];
+void hsv_to_rgba(color *col)
+{
+    hsv *hsvp;
+    rgba *rgbap;
+    int a;
 
-    printf("HSBA -> h: %3f s: %3f b: %3f a: %3f\n", h, s, l, hsb[3]);
+    if (col->mod_hsv != NULL && col->mod_color == NULL)
+    {
+        hsvp = col->mod_hsv;
+        col->mod_color = (rgba *)malloc(sizeof(rgba));
+        rgbap = col->mod_color;
 
-    float c = round((1.0 - abs(2.0 * l - 1.0)) * s);
+        a = get_alpha(col->original_color);
+    }
+    else if (col->original_hsv != NULL && col->original_color == NULL)
+    {
+        hsvp = col->original_hsv;
+        col->original_color = (rgba *)malloc(sizeof(rgba));
+        rgbap = col->original_color;
+
+        a = get_alpha(col->mod_color);
+    }
+    else
+    {
+        fprintf(stderr, "RGBA IS EITHER COMPUTED ALREADY OR HSV IS EMPTY\n");
+        abort();
+    }
+
+    printf("HSV -> h: %3d s: %3f v: %3fd\n", hsvp->h, hsvp->s, hsvp->v);
+
+    float r, g, b;
+
+    float h = (float)hsvp->h,
+          s = (float)hsvp->s / 100.0,
+          v = ((float)hsvp->v) / 100.0;
+
+    printf("HSV -> h: %3f s: %3f b: %3f\n", h, s, v);
+
+    float c = round((1.0 - abs(2.0 * v - 1.0)) * s);
     float x = round(c * (1.0 - abs(fmodf((h / 60.0), 2.0)) - 1.0));
-    float m = (l - (c / 2.0));
+    float m = (v - (c / 2.0));
 
     if (h < 0.0 || h > 360.0)
         h = 0.0;
@@ -144,107 +184,53 @@ void *hsv_to_rgba(color *col)
     if (h < 60.0)
     {
         printf("HERE\n");
-        _r = c;
-        _g = x;
-        _b = 0.0;
+        r = c;
+        g = x;
+        b = 0.0;
     }
 
     else if (h < 120.0)
     {
-        _r = x;
-        _g = c;
-        _b = 0.0;
+        r = x;
+        g = c;
+        b = 0.0;
     }
 
     else if (h < 180.0)
     {
-        _r = 0.0;
-        _g = c;
-        _b = x;
+        r = 0.0;
+        g = c;
+        b = x;
     }
 
     else if (h < 240.0)
     {
-        _r = 0.0;
-        _g = x;
-        _b = c;
+        r = 0.0;
+        g = x;
+        b = c;
     }
 
     else if (h < 300.0)
     {
-        _r = x;
-        _g = 0.0;
-        _b = c;
+        r = x;
+        g = 0.0;
+        b = c;
     }
 
     else if (h < 360.0)
     {
-        _r = c;
-        _g = 0.0;
-        _b = x;
+        r = c;
+        g = 0.0;
+        b = x;
     }
 
-    r = (int)((_r + m) * 255.0);
-    g = (int)((_g + m) * 255.0);
-    b = (int)((_b + m) * 255.0);
+    rgbap->type = INT;
+    rgbap->px.i = (int *)malloc(sizeof(int) * 4);
 
-    // double hh, p, q, t, ff;
-    // long i;
+    rgbap->px.i[0] = (int)round((r + m) * 255.0);
+    rgbap->px.i[1] = (int)round((g + m) * 255.0);
+    rgbap->px.i[2] = (int)round((b + m) * 255.0);
+    rgbap->px.i[3] = a;
 
-    // hh = hsb[0];
-    // if (hh >= 360.0)
-    //     hh = 0.0;
-
-    // hh /= 60.0;
-
-    // i = (long)hh;
-    // ff = hh - i;
-    // p = hsb[2] * (1.0 - hsb[1]);
-    // q = hsb[2] * (1.0 - (hsb[1] * ff));
-    // t = hsb[2] * (1.0 - (hsb[2] * (1.0 - ff)));
-
-    // printf("I: %d\n", i);
-    // switch (i)
-    // {
-    // case 0:
-    //     r = hsb[2];
-    //     g = t;
-    //     b = p;
-    //     break;
-    // case 1:
-    //     r = q;
-    //     g = hsb[2];
-    //     b = p;
-    //     break;
-    // case 2:
-    //     r = p;
-    //     g = hsb[2];
-    //     b = t;
-    //     break;
-
-    // case 3:
-    //     r = p;
-    //     g = q;
-    //     b = hsb[2];
-    //     break;
-    // case 4:
-    //     r = t;
-    //     g = p;
-    //     b = hsb[2];
-    //     break;
-    // case 5:
-    // default:
-    //     r = hsb[2];
-    //     g = p;
-    //     b = q;
-    //     break;
-    // }
-
-    int *rgba = (int *)malloc(sizeof(int) * 4);
-    rgba[0] = r;
-    rgba[1] = g;
-    rgba[2] = b;
-    rgba[3] = a;
-    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n\n", rgba[0], rgba[1], rgba[2], rgba[3]);
-    return rgba;
+    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n\n", rgbap->px.i[0], rgbap->px.i[1], rgbap->px.i[2], rgbap->px.i[3]);
 }
