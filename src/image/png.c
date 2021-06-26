@@ -156,7 +156,7 @@ void read_png(image_png *png_image)
     png_destroy_read_struct(&png, &info, NULL);
 }
 
-void png_stats(image_png *png, color_ll *cll)
+void png_stats(image_png *png, color_ll *cll, int tolerance)
 {
     // get number of different colors that are not the ignored_color, use linked list (make one for pixel arrays),
 
@@ -173,15 +173,17 @@ void png_stats(image_png *png, color_ll *cll)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!rgba_is_equal(px, vars->ignored, 0) && px[3] != 0)
+            if (!rgba_is_equal(px, vars->ignored, tolerance) && px[3] != 0)
             {
                 // check if pixel exists
                 // if not add
                 // else update occurences
-                if (png_bytep_exists_in_cll(cll, px))
-                    update_color_occurence(cll, px);
-                else
+                if (png_bytep_exists_in_cll(cll, px, tolerance))
+                    update_color_occurence(cll, px, tolerance);
+                else {
                     append_data_to_cll(cll, px);
+                    // printf("%3d %3d %3d %3d\n", px[0], px[1], px[2], px[3]);
+                }
 
                 // calculate full hex number as int
                 // check if is max/min
@@ -193,7 +195,7 @@ void png_stats(image_png *png, color_ll *cll)
     // calculate mean
 }
 
-void modify_png(image_png *png, color_ll *cll)
+void modify_png(image_png *png, color_ll *cll, int tolerance)
 {
     for (int y = 0; y < png->height; y++)
     {
@@ -201,9 +203,9 @@ void modify_png(image_png *png, color_ll *cll)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!rgba_is_equal(px, vars->ignored, 0) && px[3] != 0)
+            if (!rgba_is_equal(px, vars->ignored, tolerance) && px[3] != 0)
             {
-                c_node *node = find_by_original_color(cll, (int *)px);
+                c_node *node = find_by_original_color(cll, (int *)px, tolerance);
 
                 if (node == NULL)
                 {

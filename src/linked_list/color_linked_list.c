@@ -1,7 +1,7 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
-c_node *find_by_original_color(color_ll *cll, int *rgba)
+c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
@@ -28,7 +28,7 @@ c_node *find_by_original_color(color_ll *cll, int *rgba)
             rgba_is_equal(
                 (png_bytep)rgba,
                 node->color->original_color->type == INT ? node->color->original_color->px.i : (int *)node->color->original_color->px.p,
-                10))
+                tolerance))
         {
             return node;
         }
@@ -72,7 +72,7 @@ c_node *get_most_frequent(color_ll *cll, int occurence)
     return node;
 }
 
-void update_color_occurence(color_ll *cll, png_bytep color)
+void update_color_occurence(color_ll *cll, png_bytep color, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
@@ -95,7 +95,12 @@ void update_color_occurence(color_ll *cll, png_bytep color)
 
     do
     {
-        if (rgba_is_equal(color, (int *)node->color->original_color->px.p, 10))
+        int *original_color = (int *)malloc(sizeof(int) * 4);
+        original_color[0] = node->color->original_color->px.p[0];
+        original_color[1] = node->color->original_color->px.p[1];
+        original_color[2] = node->color->original_color->px.p[2];
+
+        if (rgba_is_equal(color, original_color, tolerance))
         {
             node->occurences++;
             return;
@@ -105,7 +110,7 @@ void update_color_occurence(color_ll *cll, png_bytep color)
     return;
 }
 
-bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color)
+bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
@@ -122,7 +127,12 @@ bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color)
 
     do
     {
-        if (rgba_is_equal(color, (int *)node->color->original_color->px.p, 10))
+        int *original_color = (int *)malloc(sizeof(int) * 4);
+        original_color[0] = node->color->original_color->px.p[0];
+        original_color[1] = node->color->original_color->px.p[1];
+        original_color[2] = node->color->original_color->px.p[2];
+
+        if (rgba_is_equal(color, original_color, tolerance))
         {
             return true;
         }

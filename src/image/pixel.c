@@ -10,20 +10,6 @@ void copy_to_px(png_bytep px, int *rgba)
     px[3] = rgba[3];
 }
 
-bool intp_is_equal(int *origin, int *compare)
-{
-    if (
-        origin[0] == compare[0] &&
-        origin[1] == compare[1] &&
-        origin[2] == compare[2] &&
-        origin[3] == compare[3])
-    {
-        return true;
-    }
-
-    return false;
-}
-
 bool compare_near(int value, int other_value, int tolerance)
 {
     return value == other_value || abs(value - other_value) <= tolerance;

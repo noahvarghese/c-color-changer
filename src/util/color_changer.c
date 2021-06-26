@@ -19,11 +19,13 @@ void calc_hues(image_png *png)
 // Only deal with pngs
 void color_changer(char *file_name)
 {
+    int tolerance = 15;
+
     color_ll *cll = init_cll();
     image_png *png = init_png_image(file_name);
     read_png(png);
-    png_stats(png, cll);
-    modify_png(png, cll);
+    png_stats(png, cll, tolerance);
+    modify_png(png, cll, tolerance);
     write_png(png);
     free_png(png);
     // not implemented
