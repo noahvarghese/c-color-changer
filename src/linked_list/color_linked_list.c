@@ -1,17 +1,66 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
+
+void front_back_split(c_node *source, c_node **front_ref, c_node ** back_ref) {
+    c_node * fast;
+    c_node *slow;
+    slow = source;
+    fast = source->next;
+
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) {
+            slow= slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *front_ref = source;
+    *back_ref = slow->next;
+    slow->next = NULL;
+}
+
+c_node *sorted_merge(c_node *a, c_node *b) {
+    c_node *result = NULL;
+
+    if (a == NULL)
+        return b;
+    else if (b==NULL)
+        return a;
+
+    if (a->color->original_hsv->v <= b->color->original_hsv->v)
+    result = a;
+    result->next = sorted_merge(a->next, b);
+}
+
+void merge_sort(c_node **head_ref) {
+    c_node *head = *head_ref;
+    c_node *a;
+    c_node *b;
+
+    front_back_split(head, &a, &b);
+
+    merge_sort(&a);
+    merge_sort(&b);
+    *head_ref = sorted_merge(a, b);
+}
+
+void order_by_original_value(color_ll *cll) {
+    if (cll->head == NULL || cll->length == 1) {
+        return;
+    }
+
+    merge_sort(&cll->head);
+}
+
+
+
 c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
         return NULL;
-    }
-
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
     }
 
     if (cll->length < 1)
@@ -37,90 +86,72 @@ c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance)
     return NULL;
 }
 
-c_node *get_most_frequent(color_ll *cll, int occurence)
-{
-    if (cll->head == NULL && cll->length == 0)
-    {
-        return NULL;
-    }
+// c_node *get_most_frequent(color_ll *cll, int occurence)
+// {
+//     if (cll->head == NULL && cll->length == 0)
+//     {
+//         return NULL;
+//     }
 
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
-    }
+//     if (cll->length < 1)
+//     {
+//         printf("List is empty\n");
+//         exit(EXIT_FAILURE);
+//     }
 
-    if (cll->length < 1)
-    {
-        printf("List is empty\n");
-        exit(EXIT_FAILURE);
-    }
+//     c_node *node = cll->head;
+//     int max = 0;
+//     c_node *max_node = node;
 
-    c_node *node = cll->head;
-    int max = 0;
-    c_node *max_node = node;
+//     do
+//     {
+//         if (node->occurences > max)
+//         {
+//             max = node->occurences;
+//             max_node = node;
+//         }
+//     } while (node = node->next);
 
-    do
-    {
-        if (node->occurences > max)
-        {
-            max = node->occurences;
-            max_node = node;
-        }
-    } while (node = node->next);
+//     return node;
+// }
 
-    return node;
-}
+// void update_color_occurence(color_ll *cll, png_bytep color, int tolerance)
+// {
+//     if (cll->head == NULL && cll->length == 0)
+//     {
+//         return;
+//     }
 
-void update_color_occurence(color_ll *cll, png_bytep color, int tolerance)
-{
-    if (cll->head == NULL && cll->length == 0)
-    {
-        return;
-    }
+//     if (cll->length < 1)
+//     {
+//         printf("List is empty\n");
+//         exit(EXIT_FAILURE);
+//     }
 
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
-    }
+//     c_node *node = cll->head;
 
-    if (cll->length < 1)
-    {
-        printf("List is empty\n");
-        exit(EXIT_FAILURE);
-    }
+//     do
+//     {
+//         int *original_color = (int *)malloc(sizeof(int) * 4);
+//         original_color[0] = node->color->original_color->px.p[0];
+//         original_color[1] = node->color->original_color->px.p[1];
+//         original_color[2] = node->color->original_color->px.p[2];
 
-    c_node *node = cll->head;
+//         if (rgba_is_equal(color, original_color, tolerance))
+//         {
+//             node->occurences++;
+//             return;
+//         }
+//     } while (node = node->next);
 
-    do
-    {
-        int *original_color = (int *)malloc(sizeof(int) * 4);
-        original_color[0] = node->color->original_color->px.p[0];
-        original_color[1] = node->color->original_color->px.p[1];
-        original_color[2] = node->color->original_color->px.p[2];
-
-        if (rgba_is_equal(color, original_color, tolerance))
-        {
-            node->occurences++;
-            return;
-        }
-    } while (node = node->next);
-
-    return;
-}
+//     return;
+// }
 
 bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
         return false;
-    }
-
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
     }
 
     c_node *node = cll->head;
@@ -146,12 +177,6 @@ c_node *get_at_cll(color_ll *cll, int index)
     if (cll->head == NULL && cll->length == 0)
     {
         return NULL;
-    }
-
-    if (cll->head->previous != NULL)
-    {
-        printf("Node is not the head\n");
-        exit(EXIT_FAILURE);
     }
 
     if (index < 0)
@@ -198,9 +223,10 @@ void append_data_to_cll(color_ll *cll, png_bytep px)
     col->original_color->type = PNG_BYTEP;
     col->original_color->px.p = px;
 
+    rgba_to_hsv(col);
+
     c_node *node = init_c_node();
     node->color = col;
-    node->occurences = 1;
     append_node_to_cll(cll, node);
 }
 
@@ -214,7 +240,6 @@ void append_node_to_cll(color_ll *cll, c_node *node)
     else
     {
         cll->tail->next = node;
-        node->previous = cll->tail;
         cll->tail = node;
     }
 

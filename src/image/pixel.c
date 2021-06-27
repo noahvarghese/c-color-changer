@@ -57,28 +57,27 @@ void rgba_to_hsv(color *col)
     }
     else
     {
-        fprintf(stderr, "COLORS EIThER EMPTY OR HSV IS ALREADY COMPUTED\n");
+        fprintf(stderr, "COLORS EITHER EMPTY OR HSV IS ALREADY COMPUTED\n");
         abort();
     }
 
-    int r, g, b;
+    double r, g, b;
 
     if (rgbap->type == INT)
     {
-        r = rgbap->px.i[0];
-        g = rgbap->px.i[1];
-        b = rgbap->px.i[2];
+        r = ((double)rgbap->px.i[0]) / 255.0;
+        g = ((double)rgbap->px.i[1]) / 255.0;
+        b = ((double)rgbap->px.i[2]) / 255.0;
+        // printf("%3d %3d %3d\n", rgbap->px.i[0], rgbap->px.i[1], rgbap->px.i[2]);
     }
     else
     {
-        r = rgbap->px.p[0];
-        g = rgbap->px.p[1];
-        b = rgbap->px.p[2];
+        r = ((double)rgbap->px.p[0]) / 255.0;
+        g = ((double)rgbap->px.p[1]) / 255.0;
+        b = ((double)rgbap->px.p[2]) / 255.0;
+        // printf("%3d %3d %3d\n", rgbap->px.p[0], rgbap->px.p[1],rgbap->px.p[2]);
     }
-
-    r /= 255;
-    g /= 255;
-    b /= 255;
+    // printf("%3f %3f %3f\n", r, g, b);
 
     int h;
     float s, v;
@@ -86,16 +85,16 @@ void rgba_to_hsv(color *col)
     double cmax = fmax(r, fmax(g, b));
     double cmin = fmin(r, fmin(g, b));
     double delta = cmax - cmin;
-    double mod = 360;
+    double mod = 360.0;
 
     if (cmax == cmin)
-        h = 0;
+        h = 0.0;
     else if (cmax == r)
-        h = 60 * fmod((g - b) / delta, 6);
+        h = 60.0 * fmod((g - b) / delta, 6.0);
     else if (cmax == g)
-        h = 60 * (((b - r) / delta) + 2);
+        h = 60.0 * (((b - r) / delta) + 2.0);
     else if (cmax == b)
-        h = 60 * (((r - g) / delta) + 4);
+        h = 60.0 * (((r - g) / delta) + 4.0);
 
     if (cmax == 0)
         s = 0;
@@ -104,10 +103,12 @@ void rgba_to_hsv(color *col)
 
     // b = (cmax + cmin) / 2;
     v = cmax;
+    // printf("v: %3f\n", v);
 
     hsvp->h = round(h);
-    hsvp->s = round(s);
-    hsvp->v = round(v);
+    hsvp->s = s;
+    hsvp->v = v;
+    // printf("%3d %3f %3f\n\n", hsvp->h, hsvp->s, hsvp->v);
 }
 
 int get_alpha(rgba *rgbap)

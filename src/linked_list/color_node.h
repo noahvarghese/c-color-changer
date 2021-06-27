@@ -7,8 +7,6 @@
 typedef struct c_node
 {
     color *color;
-    int occurences;
-    struct c_node *previous;
     struct c_node *next;
 } c_node;
 

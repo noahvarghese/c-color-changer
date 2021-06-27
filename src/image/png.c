@@ -175,28 +175,28 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
             png_bytep px = &(row[x * 4]);
             if (!rgba_is_equal(px, vars->ignored, tolerance) && px[3] != 0)
             {
-                // check if pixel exists
-                // if not add
-                // else update occurences
-                if (png_bytep_exists_in_cll(cll, px, tolerance))
-                    update_color_occurence(cll, px, tolerance);
-                else {
+                if (!png_bytep_exists_in_cll(cll, px, tolerance))
                     append_data_to_cll(cll, px);
-                    // printf("%3d %3d %3d %3d\n", px[0], px[1], px[2], px[3]);
-                }
-
-                // calculate full hex number as int
-                // check if is max/min
             }
         }
     }
 
+    c_node *next = cll->head;
+    while (next != NULL) {
+        printf("%3f\n", next->color->original_hsv->v);
+        next = next->next;
+    }
     printf("Number of colors in image: %d\n", cll->length);
-    // calculate mean
+    // just convert all originals to hsv and order by v descending
 }
 
 void modify_png(image_png *png, color_ll *cll, int tolerance)
 {
+    // amendment
+    // assumes cll is sorted with the first node being the brightest
+    // get color_node and index
+    // hsv of replacement color is the same as hsv of desired_color but the v = v - (index * 5)
+
     for (int y = 0; y < png->height; y++)
     {
         png_bytep row = png->rows[y];
