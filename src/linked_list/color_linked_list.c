@@ -2,8 +2,8 @@
 #include "color_linked_list.h"
 
 
-void front_back_split(c_node *source, c_node **front_ref, c_node ** back_ref) {
-    c_node * fast;
+void front_back_split(c_node *source, c_node **front_ref, c_node **back_ref) {
+    c_node *fast;
     c_node *slow;
     slow = source;
     fast = source->next;
@@ -25,13 +25,20 @@ c_node *sorted_merge(c_node *a, c_node *b) {
     c_node *result = NULL;
 
     if (a == NULL)
-        return b;
+        return (b);
     else if (b==NULL)
-        return a;
+        return (a);
 
-    if (a->color->original_hsv->v <= b->color->original_hsv->v)
-    result = a;
-    result->next = sorted_merge(a->next, b);
+    if (a->color->original_hsv->v <= b->color->original_hsv->v) {
+        result = a;
+        result->next = sorted_merge(a->next, b);
+    }
+    else {
+        result = b;
+        result->next = sorted_merge(a, b->next);
+    }
+
+    return (result);
 }
 
 void merge_sort(c_node **head_ref) {

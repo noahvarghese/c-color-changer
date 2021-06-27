@@ -18,6 +18,7 @@ typedef struct color_linked_list
 
 c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance);
 color_ll *init_cll();
+void order_by_original_value(color_ll *cll);
 // void update_color_occurence(color_ll *cll, png_bytep color, int tolerance);
 bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color, int tolerance);
 c_node *get_at_cll(color_ll *cll, int index);

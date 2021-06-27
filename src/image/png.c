@@ -181,6 +181,8 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
         }
     }
 
+    order_by_original_value(cll);
+
     c_node *next = cll->head;
     while (next != NULL) {
         printf("%3f\n", next->color->original_hsv->v);
