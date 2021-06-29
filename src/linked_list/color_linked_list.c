@@ -63,7 +63,6 @@ void order_by_original_value(color_ll *cll) {
         return;
     }
 
-    printf("%04x\n", cll->head);
     merge_sort(&(cll->head));
 }
 
