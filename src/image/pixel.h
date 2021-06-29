@@ -30,9 +30,9 @@ typedef struct color
 #endif
 
 color *init_color();
-void copy_px_to_png_bytep(int *source, png_bytep dest, bool include_alpha);
-bool color_is_equal(rgba origin_px, rgba *compare_px, int tolerance);
+void copy_px_to_png_bytep(rgba *source, png_bytep dest);
+void copy_png_bytep_to_rgbap(png_bytep source, rgba *dest);
 // void rgba_to_hsv(color *col);
-void rgba_to_hsv(rgba *rgba, hsv* hsv);
-void hsv_to_rgba(hsv *hsv, rgba* rgba, int alpha);
-bool compare_rgba(rgba* source, rgba* compare, int tolerance, bool include_alpha);
+void rgba_to_hsv(rgba *rgba, hsv *hsv);
+void hsv_to_rgba(hsv *hsv, rgba *rgba, int alpha);
+bool compare_rgba(rgba *source, rgba *compare, int tolerance, bool include_alpha);

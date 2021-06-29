@@ -2,10 +2,20 @@
 #include <math.h>
 #include "pixel.h"
 
-void copy_px_to_png_bytep(int *source, png_bytep dest, bool include_alpha)
+void copy_px_to_png_bytep(rgba *source, png_bytep dest)
 {
-    for (int i = 0; i < (include_alpha ? 4 : 3); i ++)
-        dest[i] = source[i];
+    dest[0] = source->r;
+    dest[1] = source->g;
+    dest[2] = source->b;
+    dest[3] = source->a;
+}
+
+void copy_png_bytep_to_rgbap(png_bytep source, rgba *dest)
+{
+    dest->r = source[0];
+    dest->g = source[1];
+    dest->b = source[2];
+    dest->a = source[3];
 }
 
 bool compare_near(int value, int other_value, int tolerance)
@@ -13,18 +23,20 @@ bool compare_near(int value, int other_value, int tolerance)
     return value == other_value || abs(value - other_value) <= tolerance;
 }
 
-bool compare_rgba(rgba* source, rgba* compare, int tolerance, bool include_alpha)
+bool compare_rgba(rgba *source, rgba *compare, int tolerance, bool include_alpha)
 {
     if (
         compare_near(source->r, compare->r, tolerance) &&
         compare_near(source->g, compare->g, tolerance) &&
         compare_near(source->b, compare->b, tolerance))
     {
-        if (include_alpha) {
+        if (include_alpha)
+        {
             if (source->a == compare->a)
                 return true;
         }
-        else {
+        else
+        {
             return true;
         }
     }
@@ -42,7 +54,8 @@ color *init_color()
     return col;
 }
 
-void convert_original_color_to_hsv(color *col) {
+void convert_original_color_to_hsv(color *col)
+{
     hsv *hsvp;
     rgba *rgbap;
 
@@ -108,7 +121,8 @@ void rgba_to_hsv(rgba *rgbap, hsv *hsvp)
     // printf("%3d %3f %3f\n\n", hsvp->h, hsvp->s, hsvp->v);
 }
 
-void convert_modified_hsv_to_rgba(color *col) {
+void convert_modified_hsv_to_rgba(color *col)
+{
     hsv *hsvp;
     rgba *rgbap;
     int a;
@@ -119,7 +133,7 @@ void convert_modified_hsv_to_rgba(color *col) {
         col->mod_color = (rgba *)malloc(sizeof(rgba));
         rgbap = col->mod_color;
 
-        a = get_alpha(col->original_color);
+        a = col->original_color->a;
     }
     else if (col->original_hsv != NULL && col->original_color == NULL)
     {
@@ -127,7 +141,7 @@ void convert_modified_hsv_to_rgba(color *col) {
         col->original_color = (rgba *)malloc(sizeof(rgba));
         rgbap = col->original_color;
 
-        a = get_alpha(col->mod_color);
+        a = col->mod_color->a;
     }
     else
     {
@@ -138,8 +152,7 @@ void convert_modified_hsv_to_rgba(color *col) {
     hsv_to_rgba(hsvp, rgbap, a);
 }
 
-
-void hsv_to_rgba(hsv *hsv, rgba* rgba, int alpha)
+void hsv_to_rgba(hsv *hsv, rgba *rgba, int alpha)
 {
 
     printf("HSV -> h: %3d s: %3f v: %3fd\n", hsv->h, hsv->s, hsv->v);

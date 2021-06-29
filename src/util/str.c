@@ -5,10 +5,9 @@
 
 // All checks for formatting are done prior
 // this only supports 6 digit hex strings
-int *hex_from_string(char *color)
+rgba *hex_from_string(char *color)
 {
-    int counter = 0;
-    int *return_value = (int *)malloc(sizeof(int) * 4);
+    rgba *return_value = (rgba *)malloc(sizeof(rgba) * 4);
 
     char *tmp = (char *)malloc(sizeof(char) * 3);
 
@@ -18,7 +17,24 @@ int *hex_from_string(char *color)
         tmp[1] = color[i + 1];
         tmp[2] = '\0';
         // convert string to long using base 16
-        return_value[counter++] = (int)strtol(tmp, NULL, 16);
+        int val = (int)strtol(tmp, NULL, 16);
+
+        if (i == 0)
+        {
+            return_value->r = val;
+        }
+        else if (i == 2)
+        {
+            return_value->g = val;
+        }
+        else if (i == 4)
+        {
+            return_value->b = val;
+        }
+        else if (i == 6)
+        {
+            return_value->a = val;
+        }
     }
 
     return return_value;

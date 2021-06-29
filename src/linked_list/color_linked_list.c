@@ -1,17 +1,19 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
-
-void front_back_split(c_node *source, c_node **front_ref, c_node **back_ref) {
+void front_back_split(c_node *source, c_node **front_ref, c_node **back_ref)
+{
     c_node *fast;
     c_node *slow;
     slow = source;
     fast = source->next;
 
-    while (fast != NULL) {
+    while (fast != NULL)
+    {
         fast = fast->next;
-        if (fast != NULL) {
-            slow= slow->next;
+        if (fast != NULL)
+        {
+            slow = slow->next;
             fast = fast->next;
         }
     }
@@ -21,19 +23,22 @@ void front_back_split(c_node *source, c_node **front_ref, c_node **back_ref) {
     slow->next = NULL;
 }
 
-c_node *sorted_merge(c_node *a, c_node *b) {
+c_node *sorted_merge(c_node *a, c_node *b)
+{
     c_node *result = NULL;
 
     if (a == NULL)
         return (b);
-    else if (b==NULL)
+    else if (b == NULL)
         return (a);
 
-    if (a->color->original_hsv->v >= b->color->original_hsv->v) {
+    if (a->color->original_hsv->v >= b->color->original_hsv->v)
+    {
         result = a;
         result->next = sorted_merge(a->next, b);
     }
-    else {
+    else
+    {
         result = b;
         result->next = sorted_merge(a, b->next);
     }
@@ -41,10 +46,12 @@ c_node *sorted_merge(c_node *a, c_node *b) {
     return (result);
 }
 
-void merge_sort(c_node **head_ref) {
+void merge_sort(c_node **head_ref)
+{
     c_node *head = *head_ref;
 
-    if ( head == NULL || head->next == NULL ) {
+    if (head == NULL || head->next == NULL)
+    {
         return;
     }
 
@@ -58,17 +65,17 @@ void merge_sort(c_node **head_ref) {
     *head_ref = sorted_merge(a, b);
 }
 
-void order_by_original_value(color_ll *cll) {
-    if (cll->head == NULL || cll->length == 1) {
+void order_by_original_value(color_ll *cll)
+{
+    if (cll->head == NULL || cll->length == 1)
+    {
         return;
     }
 
     merge_sort(&(cll->head));
 }
 
-
-
-c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance)
+c_node *find_by_original_color(color_ll *cll, rgba *rgba, int tolerance)
 {
     if (cll->head == NULL && cll->length == 0)
     {
@@ -86,10 +93,10 @@ c_node *find_by_original_color(color_ll *cll, int *rgba, int tolerance)
     do
     {
         if (
-            rgba_is_equal(
-                (png_bytep)rgba,
-                node->color->original_color->type == INT ? node->color->original_color->px.i : (int *)node->color->original_color->px.p,
-                tolerance))
+            compare_rgba(
+                rgba,
+                node->color->original_color,
+                tolerance, false))
         {
             return node;
         }
@@ -170,12 +177,10 @@ bool png_bytep_exists_in_cll(color_ll *cll, png_bytep color, int tolerance)
 
     do
     {
-        int *original_color = (int *)malloc(sizeof(int) * 4);
-        original_color[0] = node->color->original_color->px.p[0];
-        original_color[1] = node->color->original_color->px.p[1];
-        original_color[2] = node->color->original_color->px.p[2];
+        rgba *source = (rgba *)malloc(sizeof(rgba));
+        copy_png_bytep_to_rgbap(color, source);
 
-        if (rgba_is_equal(color, original_color, tolerance))
+        if (compare_rgba(source, node->color->original_color, tolerance, false))
         {
             return true;
         }
@@ -232,29 +237,28 @@ void append_data_to_cll(color_ll *cll, png_bytep px)
 {
     color *col = init_color();
     col->original_color = (rgba *)malloc(sizeof(rgba));
-    col->original_color->type = PNG_BYTEP;
-    col->original_color->px.p = px;
-
-    rgba_to_hsv(col->original_color->px.p);
+    col->original_hsv = (hsv *)malloc(sizeof(hsv));
+    copy_png_bytep_to_rgbap(px, col->original_color);
+    rgba_to_hsv(col->original_color, col->original_hsv);
 
     c_node *node = init_c_node();
     node->color = col;
     append_node_to_cll(cll, node);
 }
 
-void push_node(color_ll *cll, c_node *node) {
+void push_node(color_ll *cll, c_node *node)
+{
     node->next = cll->head;
     cll->head = node->next;
     cll->length++;
 }
 
-void push_data(color_ll *cll, png_bytep px) {
+void push_data(color_ll *cll, png_bytep px)
+{
     color *col = init_color();
     col->original_color = (rgba *)malloc(sizeof(rgba));
-    col->original_color->type = PNG_BYTEP;
-    col->original_color->px.p = px;
-
-    rgba_to_hsv(col);
+    copy_png_bytep_to_rgbap(px, col->original_color);
+    rgba_to_hsv(col->original_color, col->original_hsv);
 
     c_node *node = init_c_node();
     node->color = col;

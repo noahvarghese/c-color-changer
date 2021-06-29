@@ -6,11 +6,13 @@
 
 typedef struct program_vars
 {
-    int *ignored;
-    int *desired;
-    char *ignored_color;
-    char *desired_color;
-    hsv *desired_hsv;
+    hsv *mod_hsv;
+    rgba *ignored_rgba;
+    rgba *mod_rgba;
+    // hex representation
+    // user entered string
+    char *ignored_hex;
+    char *mod_hex;
     char *path;
     bool is_dir;
 } program_vars;

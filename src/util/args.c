@@ -28,8 +28,8 @@ bool parse_args(int argc, char *argv[])
         {
             if (check_color_format(argv[++i]) == true)
             {
-                vars->ignored_color = argv[i];
-                vars->ignored = hex_from_string(vars->ignored_color);
+                vars->ignored_hex = argv[i];
+                vars->ignored_rgba = hex_from_string(vars->ignored_hex);
             }
             else
             {
@@ -41,8 +41,10 @@ bool parse_args(int argc, char *argv[])
         {
             if (check_color_format(argv[++i]) == true)
             {
-                vars->desired_color = argv[i];
-                vars->desired = hex_from_string(vars->desired_color);
+                vars->mod_hex = argv[i];
+                vars->mod_rgba = hex_from_string(vars->mod_hex);
+                vars->mod_hsv = (hsv *)malloc(sizeof(hsv));
+                rgba_to_hsv(vars->mod_rgba, vars->mod_hsv);
             }
             else
             {
@@ -80,13 +82,13 @@ bool parse_args(int argc, char *argv[])
         }
     }
 
-    if (vars->ignored_color == NULL)
+    if (vars->ignored_rgba == NULL)
     {
         fprintf(stderr, "Ignored color not set\n");
         exit(EXIT_FAILURE);
     }
 
-    if (vars->desired_color == NULL)
+    if (vars->mod_rgba == NULL)
     {
         fprintf(stderr, "Desired color not set\n");
         exit(EXIT_FAILURE);

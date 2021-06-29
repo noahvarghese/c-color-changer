@@ -165,7 +165,10 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!rgba_is_equal(px, vars->ignored, tolerance) && px[3] != 0)
+            rgba *rgb = (rgba *)malloc(sizeof(rgba));
+            copy_png_bytep_to_rgbap(px, rgb);
+
+            if (!compare_rgba(rgb, vars->ignored_rgba, tolerance, false) && px[3] != 0)
             {
                 if (!png_bytep_exists_in_cll(cll, px, tolerance))
                     append_data_to_cll(cll, px);
@@ -175,26 +178,29 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
 
     order_by_original_value(cll);
 
-    if (cll->head == NULL ) {
+    if (cll->head == NULL)
+    {
         return;
     }
-    
+
     c_node *prev = cll->head;
     c_node *next = prev->next;
-    
-    cll->head->color->mod_color->type = INT;
-    cll->head->color->mod_color->px.i = vars->desired;
 
-    while (next != NULL) {
+    cll->head->color->mod_color = vars->mod_rgba;
+    cll->head->color->mod_hsv = vars->mod_hsv;
 
-        // set next->mod_hue->v = desired_color->hue->v - (prev->original_hue->v - next->original_hue->v) 
+    while (next != NULL)
+    {
+
+        // set next->mod_hue->v = desired_color->hue->v - (prev->original_hue->v - next->original_hue->v)
 
         prev = next;
         next = prev->next;
     }
 
     next = cll->head;
-    while (next != NULL) {
+    while (next != NULL)
+    {
         printf("%3f\n", next->color->original_hsv->v);
         next = next->next;
     }
@@ -215,9 +221,12 @@ void modify_png(image_png *png, color_ll *cll, int tolerance)
         for (int x = 0; x < png->width; x++)
         {
             png_bytep px = &(row[x * 4]);
-            if (!rgba_is_equal(px, vars->ignored, tolerance) && px[3] != 0)
+            rgba *rgb = (rgba *)malloc(sizeof(rgba));
+            copy_png_bytep_to_rgbap(px, rgb);
+
+            if (!compare_rgba(rgb, vars->ignored_rgba, tolerance, false) && px[3] != 0)
             {
-                c_node *node = find_by_original_color(cll, (int *)px, tolerance);
+                c_node *node = find_by_original_color(cll, rgb, tolerance);
 
                 if (node == NULL)
                 {
@@ -226,7 +235,7 @@ void modify_png(image_png *png, color_ll *cll, int tolerance)
 
                 if (node->color->original_hsv == NULL)
                 {
-                    rgba_to_hsv(node->color);
+                    // rgba_to_hsv(node->color);
                 }
 
                 if (node->color->mod_hsv == NULL)
@@ -236,7 +245,7 @@ void modify_png(image_png *png, color_ll *cll, int tolerance)
 
                 if (node->color->mod_color == NULL)
                 {
-                    hsv_to_rgba(node->color);
+                    // hsv_to_rgba(node->color);
                 }
 
                 // printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
@@ -244,7 +253,7 @@ void modify_png(image_png *png, color_ll *cll, int tolerance)
                 // figure out how many steps of hue to change
                 // modify h in hsb
                 // int *rgba = hsb_to_intp(hsb);
-                copy_to_px(px, node->color->mod_color->px.i);
+                // copy_png_bytep_to_rgbap(px, node->color->mod_color->px.i);
             }
         }
     }
