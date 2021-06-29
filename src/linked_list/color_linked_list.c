@@ -29,7 +29,7 @@ c_node *sorted_merge(c_node *a, c_node *b) {
     else if (b==NULL)
         return (a);
 
-    if (a->color->original_hsv->v <= b->color->original_hsv->v) {
+    if (a->color->original_hsv->v >= b->color->original_hsv->v) {
         result = a;
         result->next = sorted_merge(a->next, b);
     }
@@ -43,6 +43,11 @@ c_node *sorted_merge(c_node *a, c_node *b) {
 
 void merge_sort(c_node **head_ref) {
     c_node *head = *head_ref;
+
+    if ( head == NULL || head->next == NULL ) {
+        return;
+    }
+
     c_node *a;
     c_node *b;
 
@@ -58,7 +63,8 @@ void order_by_original_value(color_ll *cll) {
         return;
     }
 
-    merge_sort(&cll->head);
+    printf("%04x\n", cll->head);
+    merge_sort(&(cll->head));
 }
 
 
@@ -235,6 +241,26 @@ void append_data_to_cll(color_ll *cll, png_bytep px)
     c_node *node = init_c_node();
     node->color = col;
     append_node_to_cll(cll, node);
+}
+
+void push_node(color_ll *cll, c_node *node) {
+    node->next = cll->head;
+    cll->head = node->next;
+    cll->length++;
+}
+
+void push_data(color_ll *cll, png_bytep px) {
+    color *col = init_color();
+    col->original_color = (rgba *)malloc(sizeof(rgba));
+    col->original_color->type = PNG_BYTEP;
+    col->original_color->px.p = px;
+
+    rgba_to_hsv(col);
+
+    c_node *node = init_c_node();
+    node->color = col;
+
+    push_node(cll, node);
 }
 
 void append_node_to_cll(color_ll *cll, c_node *node)
