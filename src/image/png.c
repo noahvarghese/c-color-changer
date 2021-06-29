@@ -175,7 +175,10 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
             }
         }
     }
+}
 
+void calc_output_colors(color_ll *cll)
+{
     order_by_original_value(cll);
 
     if (cll->head == NULL)
@@ -183,14 +186,19 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
         return;
     }
 
-    c_node *prev = cll->head;
-    c_node *next = prev->next;
-
     cll->head->color->mod_color = vars->mod_rgba;
     cll->head->color->mod_hsv = vars->mod_hsv;
 
+    c_node *prev = cll->head;
+    c_node *next = prev->next;
+
     while (next != NULL)
     {
+
+        next->color->mod_hsv->h = prev->color->mod_hsv->h;
+        next->color->mod_hsv->s = prev->color->mod_hsv->s;
+        next->color->mod_hsv->v = prev->color->mod_hsv->v - (prev->color->original_hsv->v - next->color->original_hsv->v);
+        hsv_to_rgba(next->color->mod_hsv, next->color->mod_color, -1);
 
         // set next->mod_hue->v = desired_color->hue->v - (prev->original_hue->v - next->original_hue->v)
 
@@ -198,13 +206,14 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
         next = prev->next;
     }
 
-    next = cll->head;
-    while (next != NULL)
-    {
-        printf("%3f\n", next->color->original_hsv->v);
-        next = next->next;
-    }
-    printf("Number of colors in image: %d\n", cll->length);
+    // next = cll->head;
+    // while (next != NULL)
+    // {
+    //     printf("original %3f\n", next->color->original_hsv->v);
+    //     printf("mod %3f\n", next->color->mod_hsv->v);
+    //     next = next->next;
+    // }
+    // printf("Number of colors in image: %d\n", cll->length);
     // just convert all originals to hsv and order by v descending
 }
 
@@ -233,20 +242,10 @@ void modify_png(image_png *png, color_ll *cll, int tolerance)
                     continue;
                 }
 
-                if (node->color->original_hsv == NULL)
-                {
-                    // rgba_to_hsv(node->color);
-                }
-
-                if (node->color->mod_hsv == NULL)
-                {
-                    // calc new color from old hue
-                }
-
-                if (node->color->mod_color == NULL)
-                {
-                    // hsv_to_rgba(node->color);
-                }
+                // printf("%3d %3d %3d %3d\n", node->color->mod_color->r, node->color->mod_color->g, node->color->mod_color->b, px[3]);
+                px[0] = node->color->mod_color->r;
+                px[1] = node->color->mod_color->g;
+                px[2] = node->color->mod_color->b;
 
                 // printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x + 1, y + 1, px[0], px[1], px[2], px[3]);
                 // int *hsb = intp_to_hsb(vars->desired);

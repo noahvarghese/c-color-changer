@@ -154,27 +154,19 @@ void convert_modified_hsv_to_rgba(color *col)
 
 void hsv_to_rgba(hsv *hsv, rgba *rgba, int alpha)
 {
+    double r, g, b;
 
-    printf("HSV -> h: %3d s: %3f v: %3fd\n", hsv->h, hsv->s, hsv->v);
+    double h = (double)hsv->h, s = hsv->s, v = hsv->v;
 
-    float r, g, b;
-
-    float h = (float)hsv->h,
-          s = (float)hsv->s / 100.0,
-          v = ((float)hsv->v) / 100.0;
-
-    printf("HSV -> h: %3f s: %3f b: %3f\n", h, s, v);
-
-    float c = round((1.0 - abs(2.0 * v - 1.0)) * s);
-    float x = round(c * (1.0 - abs(fmodf((h / 60.0), 2.0)) - 1.0));
-    float m = (v - (c / 2.0));
+    double c = v * s;
+    double x = c * (1.0 - fabs(fmod((h / 60.0), 2.0) - 1.0));
+    double m = v - c;
 
     if (h < 0.0 || h > 360.0)
         h = 0.0;
 
     if (h < 60.0)
     {
-        printf("HERE\n");
         r = c;
         g = x;
         b = 0.0;
@@ -219,6 +211,4 @@ void hsv_to_rgba(hsv *hsv, rgba *rgba, int alpha)
     rgba->g = (int)round((g + m) * 255.0);
     rgba->b = (int)round((b + m) * 255.0);
     rgba->a = alpha;
-
-    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n\n", rgba->r, rgba->g, rgba->b, rgba->a);
 }

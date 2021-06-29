@@ -17,6 +17,7 @@ typedef struct image_png
 
 image_png *init_png_image();
 void free_png(image_png *png);
+void calc_output_colors(color_ll *cll);
 void modify_png(image_png *png, color_ll *cll, int tolerance);
 void write_png(image_png *png);
 void read_png(image_png *png);

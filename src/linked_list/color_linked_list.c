@@ -238,6 +238,8 @@ void append_data_to_cll(color_ll *cll, png_bytep px)
     color *col = init_color();
     col->original_color = (rgba *)malloc(sizeof(rgba));
     col->original_hsv = (hsv *)malloc(sizeof(hsv));
+    col->mod_hsv = (hsv *)malloc(sizeof(hsv));
+    col->mod_color = (rgba *)malloc(sizeof(rgba));
     copy_png_bytep_to_rgbap(px, col->original_color);
     rgba_to_hsv(col->original_color, col->original_hsv);
 

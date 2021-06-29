@@ -4,6 +4,7 @@ clear
 echo "Deleting test files..."
 
 rm test/*_modified.png > /dev/null 2>&1
+rm single/*_modified.png > /dev/null 2>&1
 
 gcc -o output/str.o src/util/str.c -c -g
 gcc -o output/checks.o src/util/checks.c -c -g
