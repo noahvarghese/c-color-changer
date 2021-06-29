@@ -159,14 +159,6 @@ void read_png(image_png *png_image)
 void png_stats(image_png *png, color_ll *cll, int tolerance)
 {
     // get number of different colors that are not the ignored_color, use linked list (make one for pixel arrays),
-
-    // get the mean color of all except ignored_color
-    int mean[4] = {0, 0, 0, 0};
-    // get max color
-    int max[4] = {0, 0, 0, 0};
-    // get min color
-    int min[4] = {0, 0, 0, 0};
-
     for (int y = 0; y < png->height; y++)
     {
         png_bytep row = png->rows[y];
@@ -183,7 +175,25 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
 
     order_by_original_value(cll);
 
-    c_node *next = cll->head;
+    if (cll->head == NULL ) {
+        return;
+    }
+    
+    c_node *prev = cll->head;
+    c_node *next = prev->next;
+    
+    cll->head->color->mod_color->type = INT;
+    cll->head->color->mod_color->px.i = vars->desired;
+
+    while (next != NULL) {
+
+        // set next->mod_hue->v = desired_color->hue->v - (prev->original_hue->v - next->original_hue->v) 
+
+        prev = next;
+        next = prev->next;
+    }
+
+    next = cll->head;
     while (next != NULL) {
         printf("%3f\n", next->color->original_hsv->v);
         next = next->next;

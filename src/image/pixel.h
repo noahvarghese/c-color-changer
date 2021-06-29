@@ -4,22 +4,12 @@
 #include <png.h>
 #include <stdbool.h>
 
-union px_byte
-{
-    int *i;
-    png_bytep p;
-};
-
-enum px_byte_type
-{
-    INT = 0,
-    PNG_BYTEP = 1
-};
-
 typedef struct rgba
 {
-    union px_byte px;
-    enum px_byte_type type;
+    int r;
+    int g;
+    int b;
+    int a;
 } rgba;
 
 typedef struct hsv
@@ -39,9 +29,10 @@ typedef struct color
 
 #endif
 
-void copy_to_px(png_bytep px, int *rgba);
 color *init_color();
+void copy_px_to_png_bytep(int *source, png_bytep dest, bool include_alpha);
 bool color_is_equal(rgba origin_px, rgba *compare_px, int tolerance);
-void rgba_to_hsv(color *col);
-void hsv_to_rgba(color *col);
-bool rgba_is_equal(png_bytep image_px, int *node_px, int tolerance);
+// void rgba_to_hsv(color *col);
+void rgba_to_hsv(rgba *rgba, hsv* hsv);
+void hsv_to_rgba(hsv *hsv, rgba* rgba, int alpha);
+bool compare_rgba(rgba* source, rgba* compare, int tolerance, bool include_alpha);

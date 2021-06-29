@@ -235,7 +235,7 @@ void append_data_to_cll(color_ll *cll, png_bytep px)
     col->original_color->type = PNG_BYTEP;
     col->original_color->px.p = px;
 
-    rgba_to_hsv(col);
+    rgba_to_hsv(col->original_color->px.p);
 
     c_node *node = init_c_node();
     node->color = col;

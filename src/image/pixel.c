@@ -2,12 +2,10 @@
 #include <math.h>
 #include "pixel.h"
 
-void copy_to_px(png_bytep px, int *rgba)
+void copy_px_to_png_bytep(int *source, png_bytep dest, bool include_alpha)
 {
-    px[0] = rgba[0];
-    px[1] = rgba[1];
-    px[2] = rgba[2];
-    px[3] = rgba[3];
+    for (int i = 0; i < (include_alpha ? 4 : 3); i ++)
+        dest[i] = source[i];
 }
 
 bool compare_near(int value, int other_value, int tolerance)
@@ -15,14 +13,20 @@ bool compare_near(int value, int other_value, int tolerance)
     return value == other_value || abs(value - other_value) <= tolerance;
 }
 
-bool rgba_is_equal(png_bytep image_px, int *node_px, int tolerance)
+bool compare_rgba(rgba* source, rgba* compare, int tolerance, bool include_alpha)
 {
     if (
-        compare_near(image_px[0], node_px[0], tolerance) &&
-        compare_near(image_px[1], node_px[1], tolerance) &&
-        compare_near(image_px[2], node_px[2], tolerance))
+        compare_near(source->r, compare->r, tolerance) &&
+        compare_near(source->g, compare->g, tolerance) &&
+        compare_near(source->b, compare->b, tolerance))
     {
-        return true;
+        if (include_alpha) {
+            if (source->a == compare->a)
+                return true;
+        }
+        else {
+            return true;
+        }
     }
 
     return false;
@@ -38,8 +42,7 @@ color *init_color()
     return col;
 }
 
-void rgba_to_hsv(color *col)
-{
+void convert_original_color_to_hsv(color *col) {
     hsv *hsvp;
     rgba *rgbap;
 
@@ -61,22 +64,16 @@ void rgba_to_hsv(color *col)
         abort();
     }
 
+    rgba_to_hsv(rgbap, hsvp);
+}
+
+void rgba_to_hsv(rgba *rgbap, hsv *hsvp)
+{
     double r, g, b;
 
-    if (rgbap->type == INT)
-    {
-        r = ((double)rgbap->px.i[0]) / 255.0;
-        g = ((double)rgbap->px.i[1]) / 255.0;
-        b = ((double)rgbap->px.i[2]) / 255.0;
-        // printf("%3d %3d %3d\n", rgbap->px.i[0], rgbap->px.i[1], rgbap->px.i[2]);
-    }
-    else
-    {
-        r = ((double)rgbap->px.p[0]) / 255.0;
-        g = ((double)rgbap->px.p[1]) / 255.0;
-        b = ((double)rgbap->px.p[2]) / 255.0;
-        // printf("%3d %3d %3d\n", rgbap->px.p[0], rgbap->px.p[1],rgbap->px.p[2]);
-    }
+    r = ((double)rgbap->r) / 255.0;
+    g = ((double)rgbap->g) / 255.0;
+    b = ((double)rgbap->b) / 255.0;
     // printf("%3f %3f %3f\n", r, g, b);
 
     int h;
@@ -111,20 +108,7 @@ void rgba_to_hsv(color *col)
     // printf("%3d %3f %3f\n\n", hsvp->h, hsvp->s, hsvp->v);
 }
 
-int get_alpha(rgba *rgbap)
-{
-    if (rgbap->type == INT)
-    {
-        return rgbap->px.i[3];
-    }
-    else
-    {
-        return rgbap->px.p[3];
-    }
-}
-
-void hsv_to_rgba(color *col)
-{
+void convert_modified_hsv_to_rgba(color *col) {
     hsv *hsvp;
     rgba *rgbap;
     int a;
@@ -151,13 +135,20 @@ void hsv_to_rgba(color *col)
         abort();
     }
 
-    printf("HSV -> h: %3d s: %3f v: %3fd\n", hsvp->h, hsvp->s, hsvp->v);
+    hsv_to_rgba(hsvp, rgbap, a);
+}
+
+
+void hsv_to_rgba(hsv *hsv, rgba* rgba, int alpha)
+{
+
+    printf("HSV -> h: %3d s: %3f v: %3fd\n", hsv->h, hsv->s, hsv->v);
 
     float r, g, b;
 
-    float h = (float)hsvp->h,
-          s = (float)hsvp->s / 100.0,
-          v = ((float)hsvp->v) / 100.0;
+    float h = (float)hsv->h,
+          s = (float)hsv->s / 100.0,
+          v = ((float)hsv->v) / 100.0;
 
     printf("HSV -> h: %3f s: %3f b: %3f\n", h, s, v);
 
@@ -211,13 +202,10 @@ void hsv_to_rgba(color *col)
         b = x;
     }
 
-    rgbap->type = INT;
-    rgbap->px.i = (int *)malloc(sizeof(int) * 4);
+    rgba->r = (int)round((r + m) * 255.0);
+    rgba->g = (int)round((g + m) * 255.0);
+    rgba->b = (int)round((b + m) * 255.0);
+    rgba->a = alpha;
 
-    rgbap->px.i[0] = (int)round((r + m) * 255.0);
-    rgbap->px.i[1] = (int)round((g + m) * 255.0);
-    rgbap->px.i[2] = (int)round((b + m) * 255.0);
-    rgbap->px.i[3] = a;
-
-    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n\n", rgbap->px.i[0], rgbap->px.i[1], rgbap->px.i[2], rgbap->px.i[3]);
+    printf("RGBA -> r: %3d g: %3d b: %3d a: %3d\n\n", rgba->r, rgba->g, rgba->b, rgba->a);
 }

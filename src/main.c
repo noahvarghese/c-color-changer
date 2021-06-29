@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
         return close_program(success);
     }
 
+// to do here
+    // rgba_to_hsv()
+
     const char delim = ',';
     sll *files = sll_from_string(vars->path, delim);
 

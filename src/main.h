@@ -2,6 +2,7 @@
 #define GLOBAL_H
 
 #include <stdbool.h>
+#include "./image/pixel.h"
 
 typedef struct program_vars
 {
@@ -9,6 +10,7 @@ typedef struct program_vars
     int *desired;
     char *ignored_color;
     char *desired_color;
+    hsv *desired_hsv;
     char *path;
     bool is_dir;
 } program_vars;
