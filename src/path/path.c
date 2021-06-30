@@ -6,6 +6,8 @@
 #include "path.h"
 #include "../util/checks.h"
 
+// responsible for getting file info and performing actions on files and or directories
+
 char *path_to_dir(char *file_path)
 {
     char *dir_path;

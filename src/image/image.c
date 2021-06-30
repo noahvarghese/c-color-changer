@@ -5,6 +5,8 @@
 #include "../linked_list/string_linked_list.h"
 #include "../main.h"
 
+// Old code when I didn't knwo about libpng and tried to do it by hand, made progress, but was better to utilize a prexisting library
+
 char *modify_image_name(char *file_name)
 {
     char name[] = "_modified";

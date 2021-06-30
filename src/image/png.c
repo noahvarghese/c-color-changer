@@ -5,12 +5,28 @@
 #include "png.h"
 #include "../main.h"
 
+// Handles all png manipulations (read/write/modify/get stats)
 void free_png(image_png *png)
 {
-    free(png->name);
-    free(png->new_name);
-    free(png->rows);
-    free(png);
+    if( png != NULL) {
+        if (png->name != NULL) {
+            free(png->name);
+            png->name = NULL;
+        }
+
+        if (png->new_name != NULL) {
+            free(png->new_name);
+            png->new_name = NULL;
+        }
+        
+        if (png->rows != NULL) {
+            free(png->rows);
+            png->rows = NULL;
+        }
+
+        free(png);
+        png = NULL;
+    }
 }
 
 image_png *init_png_image(char *name)
@@ -81,9 +97,6 @@ void write_png(image_png *png_image)
 void read_png(image_png *png_image)
 {
     printf("File: %s\n", png_image->name);
-    // int width, height;
-    // png_byte color_type, bit_depth;
-    // png_bytep *rows = NULL;
 
     FILE *file = fopen(png_image->name, "r");
 
@@ -175,46 +188,6 @@ void png_stats(image_png *png, color_ll *cll, int tolerance)
             }
         }
     }
-}
-
-void calc_output_colors(color_ll *cll)
-{
-    order_by_original_value(cll);
-
-    if (cll->head == NULL)
-    {
-        return;
-    }
-
-    cll->head->color->mod_color = vars->mod_rgba;
-    cll->head->color->mod_hsv = vars->mod_hsv;
-
-    c_node *prev = cll->head;
-    c_node *next = prev->next;
-
-    while (next != NULL)
-    {
-
-        next->color->mod_hsv->h = prev->color->mod_hsv->h;
-        next->color->mod_hsv->s = prev->color->mod_hsv->s;
-        next->color->mod_hsv->v = prev->color->mod_hsv->v - (prev->color->original_hsv->v - next->color->original_hsv->v);
-        hsv_to_rgba(next->color->mod_hsv, next->color->mod_color, -1);
-
-        // set next->mod_hue->v = desired_color->hue->v - (prev->original_hue->v - next->original_hue->v)
-
-        prev = next;
-        next = prev->next;
-    }
-
-    // next = cll->head;
-    // while (next != NULL)
-    // {
-    //     printf("original %3f\n", next->color->original_hsv->v);
-    //     printf("mod %3f\n", next->color->mod_hsv->v);
-    //     next = next->next;
-    // }
-    // printf("Number of colors in image: %d\n", cll->length);
-    // just convert all originals to hsv and order by v descending
 }
 
 void modify_png(image_png *png, color_ll *cll, int tolerance)

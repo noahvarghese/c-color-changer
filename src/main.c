@@ -25,6 +25,46 @@ int close_program(bool success)
     return success == 1 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+void free_vars() {
+    if (vars != NULL) {
+        if (vars->ignored_hex != NULL){
+            free(vars->ignored_hex);    
+            vars->ignored_hex = NULL;
+        }
+
+        if (vars->ignored_rgba != NULL) {
+            free(vars->ignored_rgba);
+            vars->ignored_rgba = NULL;
+        }
+
+        if (vars->mod_hex != NULL) {
+            free(vars->mod_hex);
+            vars->mod_hex = NULL;
+        }
+
+        if (vars->mod_hsv != NULL ) {
+            free(vars->mod_hsv);
+            vars->mod_hsv = NULL;
+        }
+
+        if (vars->mod_rgba != NULL) {
+            free(vars->mod_rgba);
+            vars->mod_rgba = NULL;
+        }
+
+        if (vars->output_path != NULL) {
+            free(vars->output_path);
+            vars->output_path = NULL;
+        }
+
+        if (vars->path != NULL) {
+            free(vars->path);
+            vars->path = NULL;
+        }
+        free(vars);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     vars = (program_vars *)malloc(sizeof(program_vars));
@@ -39,9 +79,6 @@ int main(int argc, char *argv[])
         printf(HELP_MESSAGE);
         return close_program(success);
     }
-
-// to do here
-    // rgba_to_hsv()
 
     const char delim = ',';
     sll *files = sll_from_string(vars->path, delim);
@@ -67,5 +104,8 @@ int main(int argc, char *argv[])
 
     // switch order as user defined functions 1 = true, and 0 = false
     // but in main 0 means no errors, while 1 means error occurred
+
+    // Error gets thrown don't know why
+    // free_vars();
     return close_program(true) == 1 ? 0 : 1;
 }

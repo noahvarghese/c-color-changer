@@ -2,6 +2,35 @@
 #include <math.h>
 #include "pixel.h"
 
+// Handles all pixel related data structures
+// stuff like RGBA and HSV implmentations and calculations
+
+void free_color(color *col) {
+    if (col != NULL) {
+        if (col->original_color != NULL) {
+            free(col->original_color);
+            col->original_color = NULL;
+        }
+
+        if (col->original_hsv != NULL) {
+            free(col->original_hsv);
+            col->original_hsv = NULL;
+        }
+
+        if (col->mod_color != NULL) {
+            free(col->mod_color);
+            col->mod_color = NULL;
+        }
+
+        if (col->mod_hsv != NULL) {
+            free(col->mod_hsv);
+            col->mod_hsv = NULL;
+        } 
+        free(col);
+        col = NULL;
+    }
+}
+
 void copy_px_to_png_bytep(rgba *source, png_bytep dest)
 {
     dest[0] = source->r;
@@ -111,14 +140,11 @@ void rgba_to_hsv(rgba *rgbap, hsv *hsvp)
     else
         s = delta / cmax;
 
-    // b = (cmax + cmin) / 2;
     v = cmax;
-    // printf("v: %3f\n", v);
 
-    hsvp->h = round(h);
+    hsvp->h = ceil(h);
     hsvp->s = s;
     hsvp->v = v;
-    // printf("%3d %3f %3f\n\n", hsvp->h, hsvp->s, hsvp->v);
 }
 
 void convert_modified_hsv_to_rgba(color *col)
@@ -207,8 +233,8 @@ void hsv_to_rgba(hsv *hsv, rgba *rgba, int alpha)
         b = x;
     }
 
-    rgba->r = (int)round((r + m) * 255.0);
-    rgba->g = (int)round((g + m) * 255.0);
-    rgba->b = (int)round((b + m) * 255.0);
+    rgba->r = (int)ceil((r + m) * 255.0);
+    rgba->g = (int)ceil((g + m) * 255.0);
+    rgba->b = (int)ceil((b + m) * 255.0);
     rgba->a = alpha;
 }

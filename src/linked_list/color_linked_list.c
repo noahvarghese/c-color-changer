@@ -1,6 +1,18 @@
 #include "../image/pixel.h"
 #include "color_linked_list.h"
 
+// linked list implemntation to hold color/png/image data specifically
+
+void free_cll(color_ll *cll) {
+    if (cll != NULL) {
+        if (cll->head != NULL) {
+            free_c_node(cll->head);
+            cll->head = NULL; 
+        }
+        free(cll);
+        cll = NULL;
+    }
+}
 void front_back_split(c_node *source, c_node **front_ref, c_node **back_ref)
 {
     c_node *fast;

@@ -6,6 +6,8 @@
 
 #include "checks.h"
 
+// Any extra checks for formatting of different types
+
 bool check_is_file(const char *filename)
 {
     struct stat statbuf;

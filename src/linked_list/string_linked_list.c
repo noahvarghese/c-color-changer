@@ -6,6 +6,9 @@
 #include "../util/str.h"
 #include "string_linked_list.h"
 #include "../main.h"
+
+// Utilized while parsing CLI args (specifically for checking paths are correct), couldve maybe done a tree?
+
 sll *init_sll()
 {
     sll *list = (sll *)malloc(sizeof(sll));

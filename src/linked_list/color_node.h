@@ -12,4 +12,5 @@ typedef struct c_node
 
 #endif
 
+void free_c_node(c_node *node);
 c_node *init_c_node();

@@ -15,6 +15,8 @@ typedef struct program_vars
     char *mod_hex;
     char *path;
     bool is_dir;
+    char *output_path;
+    int tolerance;
 } program_vars;
 
 extern program_vars *vars;

@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include "str.h"
 
+// Any added string functionality
+
 // All checks for formatting are done prior
 // this only supports 6 digit hex strings
 rgba *hex_from_string(char *color)

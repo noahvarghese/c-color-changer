@@ -11,6 +11,8 @@
 
 bool parse_args(int argc, char *argv[])
 {
+    vars->tolerance = -1;
+
     for (int i = 1; i < argc; i++)
     {
         size_t length = strlen(argv[i]);
@@ -80,6 +82,12 @@ bool parse_args(int argc, char *argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        else if (strcmp(arg, "-t") == 0 || strcmp(arg, "--tolerance") == 0) {
+            int tolerance = atoi(argv[++i]);
+
+            if (tolerance > -1)
+                vars->tolerance = tolerance;
+        }
     }
 
     if (vars->ignored_rgba == NULL)
@@ -97,6 +105,11 @@ bool parse_args(int argc, char *argv[])
     if (vars->path == NULL)
     {
         fprintf(stderr, "Path to file(s) not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (vars->tolerance == -1)  {
+        fprintf(stderr, "Tolerance must be an integer greater than 0\n");
         exit(EXIT_FAILURE);
     }
 
